@@ -1340,7 +1340,7 @@ Navigate to the example directory:
 cd ~/cloud-uth/code/12_nginx-proxy
 ```
 
-### Step 1: Define the web servers (Deployments and Services)
+### 12.1 Define the web servers (Deployments and Services)
 
 **File:** `web-deployments.yaml`
 
@@ -1429,7 +1429,7 @@ spec:
       targetPort: 80
 ```
 
-### Step 2: Add content to the pages (ConfigMaps)
+### 12.2 Add content to the pages (ConfigMaps)
 
 **File:** `web-configmaps.yaml`
 
@@ -1454,7 +1454,7 @@ data:
     <h1>Welcome to Web2</h1>
 ```
 
-### Step 3: Define the nginx reverse proxy
+### 12.3 Define the nginx reverse proxy
 
 **File:** `nginx-configmap.yaml`
 
@@ -1532,7 +1532,7 @@ spec:
       targetPort: 80
 ```
 
-### Step 4: Deploy on Kubernetes
+### 12.4 Deploy on Kubernetes
 
 ```bash
 kubectl apply -f web-configmaps.yaml
@@ -1542,7 +1542,7 @@ kubectl apply -f nginx-configmap.yaml
 kubectl apply -f nginx-deployment.yaml
 ```
 
-### Step 5: Access the application
+### 12.5 Access the application
 
 Open the following in your browser:
 
@@ -1571,14 +1571,14 @@ kubectl delete -f web-configmaps.yaml
 
 In this section, we examine two important kinds of Kubernetes Services: **Headless** and **Load-Balancing (ClusterIP)**. We will use a StatefulSet with two pods as an example.
 
-### 🎯 Goal
+### 13.1 Goal
 
 - Understand the difference between Headless and Load-Balanced Services
 - Apply these service types in practice with a StatefulSet
 
-### ℹ️ Theoretical background: ClusterIP and Headless Services
+### 13.2 Theoretical background: ClusterIP and Headless Services
 
-#### 🔹 ClusterIP (default Service type)
+#### 13.2.1 ClusterIP (default Service type)
 
 `ClusterIP` is the **default Service type** in Kubernetes. The API server creates a **virtual IP address (Cluster IP)** inside the cluster network and routes traffic to the pods that match the `selector`.
 
@@ -1591,7 +1591,7 @@ In this section, we examine two important kinds of Kubernetes Services: **Headle
 - Suitable for use only from inside the cluster
 - The service load-balances traffic equally across all pods that match the selector
 
-#### 🔹 Headless Services (`clusterIP: None`)
+#### 13.2.2 Headless Services (`clusterIP: None`)
 
 When a Service is declared as Headless (with `clusterIP: None`), no virtual IP is created at all. Instead, DNS returns **all pod IPs** matching the `selector`.
 
@@ -1616,11 +1616,11 @@ When a Service is declared as Headless (with `clusterIP: None`), no virtual IP i
 
 ---
 
-### 🔧 Creating Headless and Load-Balanced Services
+### 13.3 Creating Headless and Load-Balanced Services
 
 The folder `code/13_services` contains all the YAML files used in this example.
 
-### ✅ Run with the Makefile
+### 13.4 Run with the Makefile
 
 Use `make deploy` to apply all resources:
 
@@ -1643,7 +1643,7 @@ make clean
 
 ---
 
-### 🔍 What to expect
+### 13.5 What to expect
 
 After applying the resources:
 
@@ -1661,7 +1661,7 @@ kubectl get svc
 
 ---
 
-### 1️⃣ Headless Service
+### 13.6 Headless Service
 
 ```yaml
 apiVersion: v1
@@ -1678,7 +1678,7 @@ spec:
       targetPort: 80
 ```
 
-### 2️⃣ Load-Balancing Service (ClusterIP)
+### 13.7 Load-Balancing Service (ClusterIP)
 
 ```yaml
 apiVersion: v1
@@ -1694,7 +1694,7 @@ spec:
       targetPort: 80
 ```
 
-### 3️⃣ StatefulSet with 2 pods
+### 13.8 StatefulSet with 2 pods
 
 ```yaml
 apiVersion: apps/v1
@@ -1729,7 +1729,7 @@ spec:
                   fieldPath: metadata.name
 ```
 
-### 🌐 Test using `curl`
+### 13.9 Test using `curl`
 
 If you are connected to the cluster through VPN, run the following command multiple times. You should see a different `hostname` (pod name) if load balancing is working.
 
@@ -1747,7 +1747,7 @@ curl my-app-headless.ikons-priv.svc.cluster.local
 
 Again, you should see a different `hostname` (pod name), but for a different reason: in this case `my-app-headless` resolves to two different IPs, and the `curl` client picks one of them at random.
 
-### 🧪 Test DNS resolution
+### 13.10 Test DNS resolution
 
 ```bash
 # ⚠️ Replace "ikons" below with your own username

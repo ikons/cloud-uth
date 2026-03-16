@@ -5,7 +5,7 @@
 ✅ Παραδείγματα με χρήση Docker & Docker Compose  
 ✅ Πλήρη οδηγό για σύνδεση με την υποδομή Kubernetes του εργαστηρίου μέσω OpenVPN  
 ✅ Υλοποιήσεις σε Kubernetes: Pods, Deployments, StatefulSets, Volumes, ConfigMaps, Secrets και Services
-✅ Τεκμηρίωση σε μορφή Markdown και Makefile για αυτοματισμούς
+✅ Τεκμηρίωση σε μορφή Markdown με παραγόμενους οδηγούς Word
 
 ## 📁 Δομή Οδηγιών
 
@@ -26,3 +26,8 @@ cd cloud-uth
 > - Docker Desktop (με WSL2 backend)
 > - OpenVPN Client
 > - `kubectl` και `k9s`
+
+## 📝 Οδηγοί Word
+
+Οι οδηγοί Word στον φάκελο `odigoi/` παράγονται από τα Markdown αρχεία του `docs/` μέσω Pandoc.
+Σε Windows, το `scripts/export-docx.ps1` και το `make -C docs docx` χρησιμοποιούν επίσης το Microsoft Word για να ανανεώσουν αυτόματα τον πίνακα περιεχομένων.

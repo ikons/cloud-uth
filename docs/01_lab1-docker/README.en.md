@@ -1,10 +1,10 @@
 # Docker container usage examples
 
-## Introduction
+## 1. Introduction
 
 This guide will help you learn the basics of **Docker** and run both **simple** and **more advanced** examples.
 
-## Running basic Docker commands
+## 2. Running basic Docker commands
 
 **Testing Docker**
 
@@ -47,7 +47,7 @@ docker rm <container_id>
 docker rmi <image_id>
 ```
 
-## Running a simple web server with Docker
+## 3. Running a simple web server with Docker
 
 **Start an Nginx container**
 
@@ -65,11 +65,11 @@ http://localhost:8080
 
 You will see the default Nginx page.
 
-## Example 1: Creating a new Docker container with additional files
+## 4. Example 1: Creating a new Docker container with additional files
 
 In this example, we will build a **custom container** based on Ubuntu that includes a simple **Bash script** and runs it when the container starts.
 
-### Create a working directory
+### 4.1 Create a working directory
 
 First, create a new folder for the project:
 
@@ -78,7 +78,7 @@ mkdir ~/docker-custom-container
 cd ~/docker-custom-container
 ```
 
-### Create the `script.sh` file
+### 4.2 Create the `script.sh` file
 
 This script prints a message every 5 seconds.
 
@@ -104,7 +104,7 @@ Save it (`CTRL` + `X`, then `Y`, then `Enter`).
 chmod +x script.sh
 ```
 
-### Create the `Dockerfile`
+### 4.3 Create the `Dockerfile`
 
 Now we will create the **Dockerfile**, which describes our container.
 
@@ -136,7 +136,7 @@ CMD ["/script.sh"]
 
 Save the file (`CTRL` + `X`, then `Y`, then `Enter`).
 
-### Build the Docker image
+### 4.4 Build the Docker image
 
 Now build the Docker image:
 
@@ -144,7 +144,7 @@ Now build the Docker image:
 docker build -t my-custom-container .
 ```
 
-### Run the container
+### 4.5 Run the container
 
 Run the container in the background:
 
@@ -166,7 +166,7 @@ The Docker container is running! Tue Mar 5 12:00:05 UTC 2025
 ...
 ```
 
-### Management and cleanup
+### 4.6 Management and cleanup
 
 **Stop the container**
 
@@ -186,21 +186,21 @@ docker rm my-container
 docker rmi my-custom-container
 ```
 
-## Example 2: Running a more advanced setup with Nginx and multiple web servers
+## 5. Example 2: Running a more advanced setup with Nginx and multiple web servers
 
 We will create a **Docker Compose setup** with:
 
 - **Nginx** as a **reverse proxy**
 - **Two web servers** with simple HTML pages
 
-### Create a working directory
+### 5.1 Create a working directory
 
 ```bash
 mkdir ~/docker-nginx-multi
 cd ~/docker-nginx-multi
 ```
 
-### Create `docker-compose.yml`
+### 5.2 Create `docker-compose.yml`
 
 Run:
 
@@ -247,13 +247,13 @@ networks:
   mynetwork:
 ```
 
-### Create folders for the HTML files
+### 5.3 Create folders for the HTML files
 
 ```bash
 mkdir web1 web2
 ```
 
-### Create HTML pages
+### 5.4 Create HTML pages
 
 For the **Web1 server**:
 
@@ -267,7 +267,7 @@ For the **Web2 server**:
 echo "<h1>Welcome to Web2</h1>" > web2/index.html
 ```
 
-### Create the `nginx.conf` file (reverse proxy)
+### 5.5 Create the `nginx.conf` file (reverse proxy)
 
 Run:
 
@@ -310,7 +310,7 @@ http://localhost:8080
 
 Nginx will alternate requests between **Web1** and **Web2**.
 
-## Docker Volumes: Difference between ephemeral and persistent volumes
+## 6. Docker Volumes: Difference between ephemeral and persistent volumes
 
 In Docker, there are **two types of data storage**:
 
@@ -319,7 +319,7 @@ In Docker, there are **two types of data storage**:
 
 Let us look at the difference using practical examples.
 
-### Ephemeral storage (data is lost)
+### 6.1 Ephemeral storage (data is lost)
 
 The data is stored inside the container filesystem and **does not survive** when the container is deleted.
 
@@ -359,7 +359,7 @@ ls /tmp
 
 The file **does not exist** because the container filesystem was ephemeral.
 
-### Persistent storage (data is preserved)
+### 6.2 Persistent storage (data is preserved)
 
 The data is stored **outside the container**, in a Docker **Volume**, and remains available even after the container is deleted.
 

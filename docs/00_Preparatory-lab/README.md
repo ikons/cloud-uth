@@ -6,7 +6,7 @@
 
 
 
-## Ενεργοποίηση WSL και Virtual Machine Platform
+## 1. Ενεργοποίηση WSL και Virtual Machine Platform
 
 Αρχικά, πρέπει να ενεργοποιήσετε το WSL και τη δυνατότητα Virtual Machine Platform στο Windows
 
@@ -26,7 +26,7 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 ![Εικόνα 2](images/img20.png)
 
 
-Ρύθμιση του Ubuntu
+### 1.1 Ρύθμιση Ubuntu
 
 **Άνοιγμα του ****Ubuntu****:** Μετά την εγκατάσταση, κάντε κλικ στο μενού "Έναρξη" και αναζητήστε Ubuntu. Κάντε κλικ για να το ανοίξετε.
 
@@ -37,7 +37,7 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 ![Εικόνα 7](images/img7.png)
 
 
-Αναβάθμιση και ενημερώσεις
+### 1.2 Αναβάθμιση και ενημερώσεις
 
 Αφού το Ubuntu είναι έτοιμο, καλό είναι να εκτελέσετε μερικές εντολές για να βεβαιωθείτε ότι το σύστημά σας είναι ενημερωμένο:
 
@@ -80,7 +80,7 @@ wsl --list --verbose
 
 Αν όλα είναι σωστά ρυθμισμένα, το WSL και το Virtual Machine Platform θα πρέπει να εμφανίζονται ως ενεργοποιημένα και το Ubuntu ή άλλη διανομή θα είναι διαθέσιμη για χρήση στο σύστημά σας.
 
-## Εγκατάσταση Docker Desktop
+## 2. Εγκατάσταση Docker Desktop
 
 Μεταβείτε στην επίσημη σελίδα του Docker και κατέβασε την πιο πρόσφατη έκδοση του Docker Desktop για Windows x86_64: 
 

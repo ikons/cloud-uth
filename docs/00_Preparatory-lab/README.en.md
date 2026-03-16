@@ -2,7 +2,7 @@
 
 The course includes a laboratory component. For the lab sessions, we will use Docker Containers. This guide contains the preparatory steps that you are expected to complete before the first lab. These steps include setting up the Windows Subsystem for Linux (WSL) and Docker Desktop on a personal computer.
 
-## Enabling WSL and Virtual Machine Platform
+## 1. Enabling WSL and Virtual Machine Platform
 
 First, you need to enable WSL and the Virtual Machine Platform feature in Windows.
 
@@ -20,7 +20,7 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 
 ![Figure 3](images/img20.png)
 
-### Ubuntu configuration
+### 1.1 Ubuntu configuration
 
 **Open Ubuntu:** After installation, click the **Start** menu and search for **Ubuntu**. Click it to open it.
 
@@ -30,7 +30,7 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 
 ![Figure 7](images/img7.png)
 
-### Upgrades and updates
+### 1.2 Upgrades and updates
 
 Once Ubuntu is ready, it is a good idea to run a few commands to make sure your system is up to date.
 
@@ -73,7 +73,7 @@ You will see the WSL version for each Linux distribution (for example, 2 for WSL
 
 If everything is configured correctly, WSL and Virtual Machine Platform should appear as enabled, and Ubuntu or another Linux distribution should be available for use on your system.
 
-## Installing Docker Desktop
+## 2. Installing Docker Desktop
 
 Go to the official Docker page and download the latest version of Docker Desktop for Windows x86_64:
 

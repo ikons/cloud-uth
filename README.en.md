@@ -7,7 +7,7 @@ This repository contains:
 ✅ Examples using Docker & Docker Compose  
 ✅ A complete guide for connecting to the lab Kubernetes infrastructure via OpenVPN  
 ✅ Kubernetes implementations: Pods, Deployments, StatefulSets, Volumes, ConfigMaps, Secrets, and Services  
-✅ Documentation in Markdown format and Makefiles for automation
+✅ Documentation in Markdown format with generated Word guides
 
 ## 📁 Documentation Structure
 
@@ -43,3 +43,8 @@ For any new teaching material, keep the same naming pattern:
 - English Markdown: `README.en.md`
 - Greek Word guide: `name.docx`
 - English Word guide: `name.en.docx`
+
+## 📝 Word Guides
+
+The Word guides under `odigoi/` are generated from the Markdown files in `docs/` with Pandoc.
+On Windows, `scripts/export-docx.ps1` and `make -C docs docx` also use Microsoft Word to refresh the table of contents after export.

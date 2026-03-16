@@ -382,7 +382,7 @@ kubectl apply -f nginx-pod-ephemeral.yaml
 
 Αφού ολοκληρώσετε τις δοκιμές και επιβεβαιώσετε τη διαφορά μεταξύ μόνιμης και προσωρινής αποθήκευσης, μπορείτε να διαγράψετε τους πόρους που δημιουργήσατε με τις παρακάτω εντολές:
 
-# Διαγραφή των Pods
+Διαγραφή των Pods
 
 ```bash
 # Διαγραφή των Pods
@@ -468,7 +468,7 @@ kubectl scale --replicas=5 rs/my-replicaset
 kubectl delete rs my-replicaset
 ```
 
-## 06. Deployments στο Kubernetes
+## 6. Deployments στο Kubernetes
 
 Εισαγωγή στα **Deployments**: Τα Deployments στο Kubernetes αποτελούν έναν ανώτερο μηχανισμό διαχείρισης Pods σε σύγκριση με τα ReplicaSets. Παρέχουν δυνατότητες όπως ελεγχόμενες ενημερώσεις, rollback σε προηγούμενες εκδόσεις και αυτοματοποίηση της διαδικασίας ανάπτυξης εφαρμογών.
 
@@ -576,7 +576,7 @@ kubectl apply -f myrolling_deployment.yaml
 
 Αρχικά, η παλιά έκδοση (`nginx:1.14`) είναι σε λειτουργία.
 
-Τροποποιούμε την έκδοση του Nginx στο YAML `myrolling_deployment.yaml ώστε να χρησιμοποιεί την τελευταία έκδοση `nginx:latest`:
+Τροποποιούμε την έκδοση του Nginx στο YAML `myrolling_deployment.yaml` ώστε να χρησιμοποιεί την τελευταία έκδοση `nginx:latest`:
 
 ```yaml
 image: nginx:latest  # Νέα έκδοση του Nginx
@@ -1338,7 +1338,7 @@ make clean
 cd ~/cloud-uth/code/12_nginx-proxy
 ```
 
-Βήμα 1: Ορισμός Web Servers (Deployments & Services)
+### 12.1 Ορισμός web servers (Deployments & Services)
 
 **Αρχείο** `web-deployments.yaml`
 
@@ -1431,7 +1431,7 @@ spec:
 
 
 
-Βήμα 2: Προσθήκη Περιεχομένου στις Σελίδες (ConfigMaps)
+### 12.2 Προσθήκη περιεχομένου στις σελίδες (ConfigMaps)
 
 
 **Αρχείο** `web-configmaps.yaml`
@@ -1459,7 +1459,7 @@ data:
 
 
 
-Βήμα 3: Ορισμός του Nginx Reverse Proxy
+### 12.3 Ορισμός του Nginx reverse proxy
 
 
 **Αρχείο** `nginx-configmap.yaml`
@@ -1540,7 +1540,7 @@ spec:
 ```
 
 
-Βήμα 4: Ανάπτυξη στο Kubernetes
+### 12.4 Ανάπτυξη στο Kubernetes
 
 
 
@@ -1566,7 +1566,7 @@ kubectl apply -f nginx-deployment.yaml
 
 
 
-Βήμα 5: Πρόσβαση στην Εφαρμογή
+### 12.5 Πρόσβαση στην εφαρμογή
 
 
 Ανοίγουμε στο πρόγραμμα περιήγησης:
@@ -1613,14 +1613,14 @@ kubectl delete -f web-configmaps.yaml
 
 Σε αυτή την ενότητα, εξετάζουμε δύο βασικούς τύπους Kubernetes Services: **Headless** και **Load-Balancing (ClusterIP)**. Θα χρησιμοποιήσουμε ένα StatefulSet με δύο pods ως παράδειγμα.
 
-### 🎯 Σκοπός
+### 13.1 Σκοπός
 
 - Να κατανοήσεις τη διαφορά μεταξύ Headless και Load-Balanced Services.
 - Να εφαρμόσεις στην πράξη τη δημιουργία και χρήση αυτών των υπηρεσιών σε StatefulSet.
 
-### ℹ️ Θεωρητικό υπόβαθρο: ClusterIP και Headless Services
+### 13.2 Θεωρητικό υπόβαθρο: ClusterIP και Headless Services
 
-#### 🔹 ClusterIP (Default Service Type)
+#### 13.2.1 ClusterIP (Default Service Type)
 
 Το `ClusterIP` είναι ο **προεπιλεγμένος τύπος Service** στο Kubernetes. Το API Server δημιουργεί μια **εικονική IP (Cluster IP)** μέσα στο εσωτερικό δίκτυο του cluster και κατευθύνει την κυκλοφορία στα Pods που ταιριάζουν με το `selector`.
 
@@ -1634,7 +1634,7 @@ kubectl delete -f web-configmaps.yaml
 - Το service διανέμει το φορτίο εξίσου σε όλα τα Pods με βάση το selector.
 
 
-#### 🔹 Headless Services (`clusterIP: None`)
+#### 13.2.2 Headless Services (`clusterIP: None`)
 
 Όταν ένα Service δηλωθεί ως Headless (με `clusterIP: None`), δεν δημιουργείται καθόλου εικονική IP. Ένα Headless Service δεν δημιουργεί καθόλου `ClusterIP`. Αντ’ αυτού, το DNS επιστρέφει **όλες τις IPs των Pods** που αντιστοιχούν στο `selector`.
 
@@ -1663,13 +1663,13 @@ kubectl delete -f web-configmaps.yaml
 
 
 
-### 🔧 Δημιουργία Headless και Load-Balanced Services
+### 13.3 Δημιουργία Headless και Load-Balanced Services
 
 Ο φάκελος `code/13_services` περιλαμβάνει όλα τα YAML αρχεία που θα χρησιμοποιήσουμε.
 
 
 
-### ✅ Εκτέλεση με Makefile
+### 13.4 Εκτέλεση με Makefile
 
 Χρησιμοποιήστε το `make deploy` για να εφαρμόσετε όλους τους πόρους:
 
@@ -1692,7 +1692,7 @@ make clean
 
 ---
 
-### 🔍 Τι να περιμένετε
+### 13.5 Τι να περιμένετε
 
 Μετά την εφαρμογή:
 
@@ -1711,7 +1711,7 @@ kubectl get svc
 
 
 
-### 1️⃣ Headless Service
+### 13.6 Headless Service
 
 ```yaml
 apiVersion: v1
@@ -1728,7 +1728,7 @@ spec:
       targetPort: 80
 ```
 
-### 2️⃣ Load-Balancing Service (ClusterIP)
+### 13.7 Load-Balancing Service (ClusterIP)
 
 ```yaml
 apiVersion: v1
@@ -1744,7 +1744,7 @@ spec:
       targetPort: 80
 ```
 
-### 3️⃣ StatefulSet με 2 Pods
+### 13.8 StatefulSet με 2 Pods
 
 ```yaml
 apiVersion: apps/v1
@@ -1779,13 +1779,13 @@ spec:
                   fieldPath: metadata.name
 ```
 
-### 🌐 Δοκιμή μέσω curl command
+### 13.9 Δοκιμή μέσω `curl`
 
 Αν έχετε VPN σύνδεση με το cluster, εκτελέστε πολλές φορές την παρακάτω εντολή, θα δείτε διαφορετικό `hostname` (pod name) αν λειτουργεί το load balancing.
 
 ```bash
 # ⚠️ Αντικατέστησε το 👇 "ikons" με το δικό σου username
-curl curl my-app-svc.ikons-priv.svc.cluster.local
+curl my-app-svc.ikons-priv.svc.cluster.local
 ```
 
 Αντίστοιχα, τρέξτε πολλές φορές την παρακάτω εντολή:
@@ -1797,7 +1797,7 @@ curl my-app-headless.ikons-priv.svc.cluster.local
 ```
 Ομοίως, θα δείτε διαφορετικό `hostname` (pod name) αν λειτουργεί το load balancing, αλλά για  διαφορετικό λόγο: στην περίπτωση αυτή το my-app-headless γίνεται resolve σε δυο διαφορετικά IPs και ο πελάτης curl επιλέγει τυχαία ένα από τα 2.
 
-### 🧪 Δοκιμή DNS Resolution
+### 13.10 Δοκιμή DNS resolution
 
 ```bash
 # ⚠️ Αντικατέστησε το 👇 "ikons" με το δικό σου username
