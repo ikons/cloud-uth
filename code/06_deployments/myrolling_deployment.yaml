@@ -14,11 +14,11 @@ spec:
     spec:
       containers:
       - name: my-container
-        image: nginx:1.14  # Παλιά έκδοση του Nginx
+        image: nginx:1.14  # Older Nginx version
         ports:
         - containerPort: 80
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1              # Μέγιστος αριθμός επιπλέον pods που μπορούν να δημιουργηθούν κατά τη διάρκεια του update
-      maxUnavailable: 1        # Μέγιστος αριθμός pods που μπορούν να είναι μη διαθέσιμα κατά την ενημέρωση
+      maxSurge: 1              # Maximum number of extra pods that can be created during the update
+      maxUnavailable: 1        # Maximum number of pods that may be unavailable during the update
