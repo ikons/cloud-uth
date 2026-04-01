@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-sql-script
+data:
+  # PostgreSQL runs scripts from /docker-entrypoint-initdb.d on first initialization.
+  init.sql: |
+    CREATE TABLE IF NOT EXISTS my_table (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL
+    );
+    INSERT INTO my_table (name) VALUES ('Alice'), ('Bob'), ('Charlie');

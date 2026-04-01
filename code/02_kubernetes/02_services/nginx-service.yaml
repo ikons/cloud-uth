@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  selector:
+    # Match the Pod label declared in nginx-pod.yaml.
+    app: web
+  ports:
+    # Expose the same HTTP port through a stable Service name.
+    - port: 80
+      targetPort: 80
+  type: ClusterIP

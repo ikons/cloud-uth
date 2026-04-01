@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # Keys can be consumed as environment variables.
+  APP_COLOR: blue
+  APP_MODE: production
+  # Multi-line values can also be mounted as files.
+  welcome.txt: |
+    Welcome to our Kubernetes application!
+    This message is stored in a ConfigMap.

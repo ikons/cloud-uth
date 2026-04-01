@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-persistent
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        # Store the default Nginx content on a persistent volume.
+        - name: web-storage
+          mountPath: /usr/share/nginx/html
+  volumes:
+    - name: web-storage
+      persistentVolumeClaim:
+        # Reuse the PVC defined in nginx-pvc.yaml.
+        claimName: web-data

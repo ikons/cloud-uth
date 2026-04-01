@@ -1,149 +1,254 @@
-# Προπαρασκευαστικές οδηγίες για την εκτέλεση περιεκτών (containers) Docker τοπικά στον υπολογιστή σας
+# Προετοιμασία σταθμού εργασίας (WSL + Docker)
 
+Το εργαστηριακό μέρος του μαθήματος προϋποθέτει ότι ο φοιτητής μπορεί να εργαστεί από περιβάλλον Ubuntu στο WSL και να εκτελεί εντολές Docker από το ίδιο shell. Ο παρών οδηγός καλύπτει μόνο αυτή την προπαρασκευαστική φάση. Με την ολοκλήρωσή του, το σύστημα θα είναι έτοιμο για τον οδηγό Docker και για το onboarding του μέρους Kubernetes.
 
+Ο κανονικός κώδικας και τα βοηθητικά αρχεία της προπαρασκευαστικής διαδρομής βρίσκονται πλέον στον κατάλογο `code/00_workstation-setup`. Αν διαβάζετε το υλικό πριν αποκτήσετε το πρώτο τοπικό αντίγραφο του αποθετηρίου, χρησιμοποιήστε τα παρακάτω snippets ως τα έγκυρα βήματα εκτέλεσης και συνεχίστε με το βήμα `04`, όπου γίνεται και το clone του repository.
 
-Το μάθημα περιλαμβάνει ένα εργαστηριακό μέρος. Για τη διεξαγωγή του εργαστηριακού μέρους θα χρησιμοποιήσουμε Docker Containers (Περιέκτες Docker). Αυτός ο οδηγός αποτελείται από τα προπαρασκευαστικά βήματα που ζητείται να ολοκληρωθούν πριν από το πρώτο εργαστήριο. Αυτά τα βήματα περιλαμβάνουν τη ρύθμιση του Windows Subsystem For Linux (wsl) και του Docker Desktop σε έναν προσωπικό υπολογιστή. 
+## Δομή της προετοιμασίας
 
+| # | Φάκελος | Στόχος |
+|---|---------|--------|
+| 01 | `code/00_workstation-setup/01_wsl-bootstrap` | Ενεργοποίηση WSL2, εγκατάσταση Ubuntu και βασικά εργαλεία |
+| 02 | `code/00_workstation-setup/02_docker-desktop-wsl` | Προτεινόμενη εγκατάσταση με Docker Desktop και ενσωμάτωση στο WSL |
+| 03 | `code/00_workstation-setup/03_native-docker-engine` | Προαιρετική εγκατάσταση εγγενούς Docker Engine μέσα στο WSL |
+| 04 | `code/00_workstation-setup/04_validation` | Τελικός έλεγχος και τοπικό clone του repository |
 
+## 01. WSL και Ubuntu
 
-## 1. Ενεργοποίηση WSL και Virtual Machine Platform
+Πριν από οποιαδήποτε χρήση Docker, τα Windows πρέπει να παρέχουν λειτουργικό περιβάλλον `WSL2` και μια διανομή Ubuntu. Το βήμα αυτό ενεργοποιεί τις απαραίτητες δυνατότητες των Windows, εγκαθιστά το Ubuntu και προετοιμάζει το shell με τα βασικά εργαλεία που θα χρειαστούν αμέσως μετά.
 
-Αρχικά, πρέπει να ενεργοποιήσετε το WSL και τη δυνατότητα Virtual Machine Platform στο Windows
-
-**Ανοίξτε ένα PowerShell ως διαχειριστής:** Κάντε δεξί κλικ στο μενού "Έναρξη" και επιλέξτε **Windows Terminal (Administrator) ή PowerShell (Administrator)**.
+Ανοίξτε PowerShell ως διαχειριστής από το μενού Έναρξη.
 
 ![Εικόνα 1](images/img1.png)
 
+### `enable-wsl.ps1`
 
-Εκτελέστε τις παρακάτω εντολές για να ενεργοποιήσετε το WSL και το Virtual Machine Platform. Μετά την εκτέλεση των εντολών κάντε επανεκκίνηση
+Εκτελέστε πρώτα το παρακάτω περιεχόμενο από ανυψωμένο PowerShell. Μετά την εκτέλεσή του απαιτείται επανεκκίνηση των Windows.
 
-```bash
-wsl --install
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+<!-- AUTO-CODE: code/00_workstation-setup/01_wsl-bootstrap/enable-wsl.ps1 -->
+``` powershell
+# Run this script from an elevated PowerShell window.
+wsl --install --no-distribution
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 ```
+<!-- END AUTO-CODE -->
+
 ![Εικόνα 2](images/img23.png)
 
-![Εικόνα 2](images/img20.png)
+![Εικόνα 3](images/img20.png)
 
+### `install-ubuntu.ps1`
 
-### 1.1 Ρύθμιση Ubuntu
+Μετά την επανεκκίνηση, ολοκληρώστε την εγκατάσταση της διανομής Ubuntu.
 
-**Άνοιγμα του ****Ubuntu****:** Μετά την εγκατάσταση, κάντε κλικ στο μενού "Έναρξη" και αναζητήστε Ubuntu. Κάντε κλικ για να το ανοίξετε.
+<!-- AUTO-CODE: code/00_workstation-setup/01_wsl-bootstrap/install-ubuntu.ps1 -->
+``` powershell
+# Install Ubuntu after the first restart.
+wsl --install -d Ubuntu
+```
+<!-- END AUTO-CODE -->
+
+Στη συνέχεια, ανοίξτε το Ubuntu από το μενού Έναρξη και δημιουργήστε τον λογαριασμό χρήστη του WSL.
 
 ![Εικόνα 4](images/img4.png)
 
-**Ρύθμιση χρήστη και κωδικού πρόσβασης:** Κατά την πρώτη εκκίνηση του Ubuntu, θα σας ζητηθεί να δημιουργήσετε έναν χρήστη και να ορίσετε έναν κωδικό πρόσβασης. Αυτός ο χρήστης θα είναι ο κύριος χρήστης για την εγκατάσταση του Ubuntu.
+![Εικόνα 5](images/img7.png)
 
-![Εικόνα 7](images/img7.png)
+### `ubuntu-first-update.sh`
 
+Από το Ubuntu terminal, ενημερώστε το σύστημα και εγκαταστήστε τα πρώτα απαραίτητα εργαλεία. Η παρουσία του `git` ήδη από αυτό το στάδιο είναι χρήσιμη, ώστε το τοπικό clone του repository να γίνει αμέσως μετά χωρίς δεύτερο προπαρασκευαστικό βήμα.
 
-### 1.2 Αναβάθμιση και ενημερώσεις
+<!-- AUTO-CODE: code/00_workstation-setup/01_wsl-bootstrap/ubuntu-first-update.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-Αφού το Ubuntu είναι έτοιμο, καλό είναι να εκτελέσετε μερικές εντολές για να βεβαιωθείτε ότι το σύστημά σας είναι ενημερωμένο:
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y git curl ca-certificates
 
-**Αναβάθμιση των πακέτων**: Εκτελέστε την παρακάτω εντολή για να αναβαθμίσετε τα πακέτα του συστήματος:
-
-```bash
-sudo apt update && sudo apt upgrade -y
+git --version
+curl --version
 ```
+<!-- END AUTO-CODE -->
 
-**Ελέγξτε την κατάσταση του WSL**
+### `check-wsl.ps1`
 
-Ανοίξτε PowerShell (ως διαχειριστής) και εκτελέστε την εξής εντολή:
+Τέλος, επιστρέψτε σε PowerShell για να επιβεβαιώσετε ότι το WSL και το `VirtualMachinePlatform` είναι σωστά ρυθμισμένα.
 
-```bash
+<!-- AUTO-CODE: code/00_workstation-setup/01_wsl-bootstrap/check-wsl.ps1 -->
+``` powershell
+# Show the installed distributions and their WSL versions.
 wsl --list --verbose
-```
-![Εικόνα 2](images/img2.png)
 
-Αυτή η εντολή θα σας δείξει τις εγκατεστημένες διανομές του Linux και ποια είναι η προεπιλεγμένη. Αν το WSL έχει εγκατασταθεί σωστά, θα πρέπει να εμφανίζεται η διανομή Ubuntu (ή άλλη διανομή που έχετε εγκαταστήσει).
-
-**Ελέγξτε αν το Virtual Machine Platform είναι ενεργοποιημένο**
-
-Για να ελέγξετε αν το Virtual Machine Platform έχει ενεργοποιηθεί, εκτελέστε την παρακάτω εντολή:
-
-```bash
+# Confirm that the Virtual Machine Platform feature is enabled.
 Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
 ```
+<!-- END AUTO-CODE -->
 
-Αν το Virtual Machine Platform είναι ενεργοποιημένο, η κατάσταση του feature θα πρέπει να είναι **Enabled**.
+Αν η εγκατάσταση έχει ολοκληρωθεί σωστά, η διανομή `Ubuntu` εμφανίζεται με έκδοση `2` και το `VirtualMachinePlatform` εμφανίζεται ως `Enabled`.
 
-**Ελέγξτε την τρέχουσα έκδοση του WSL**
+## 02. Docker Desktop με WSL integration
 
-Για να ελέγξετε ποια έκδοση του WSL (1 ή 2) χρησιμοποιείτε, εκτελέστε την παρακάτω εντολή:
+Για τους περισσότερους φοιτητές, αυτή είναι η προτεινόμενη διαδρομή. Ο Docker daemon παραμένει στη διαχείριση του Docker Desktop, αλλά η καθημερινή χρήση γίνεται από το Ubuntu terminal του WSL, που είναι και το shell περιβάλλον των επόμενων οδηγών.
 
-```bash
-wsl --list --verbose
-```
-
-Θα δείτε την έκδοση του WSL για κάθε διανομή Linux (π.χ., 2 για WSL 2 ή 1 για WSL 1).
-
-Αν όλα είναι σωστά ρυθμισμένα, το WSL και το Virtual Machine Platform θα πρέπει να εμφανίζονται ως ενεργοποιημένα και το Ubuntu ή άλλη διανομή θα είναι διαθέσιμη για χρήση στο σύστημά σας.
-
-## 2. Εγκατάσταση Docker Desktop
-
-Μεταβείτε στην επίσημη σελίδα του Docker και κατέβασε την πιο πρόσφατη έκδοση του Docker Desktop για Windows x86_64: 
+Κατεβάστε το Docker Desktop από την επίσημη σελίδα του Docker για Windows x86_64:
 
 https://docs.docker.com/desktop/setup/install/windows-install/
 
-**Εκτέλεσε το αρχείο εγκατάστασης**: Κάνε διπλό κλικ στο αρχείο εγκατάστασης που κατέβασες και ακολούθησε τα βήματα του οδηγού εγκατάστασης.
+Κατά την εγκατάσταση, βεβαιωθείτε ότι είναι ενεργή η επιλογή `Use the WSL 2 based engine`.
 
-![Εικόνα 18](images/img18.png)
+![Εικόνα 6](images/img18.png)
 
-**Επιλογές εγκατάστασης**:
+![Εικόνα 7](images/img11.png)
 
-Κατά τη διάρκεια της εγκατάστασης, βεβαιωθείτε ότι έχετε επιλέξει τη δυνατότητα **Use the WSL 2 based engine**.
+Μετά την εγκατάσταση, ανοίξτε το Docker Desktop, ελέγξτε ότι το `WSL 2 based engine` παραμένει ενεργό και ενεργοποιήστε τη διανομή Ubuntu στην ενότητα `Resources -> WSL Integration`.
 
-![Εικόνα 11](images/img11.png)
+![Εικόνα 8](images/img21.png)
 
-Επίσης, το Docker Desktop θα εγκαταστήσει και το **Docker Desktop WSL 2 Backend**, που είναι απαραίτητο για να τρέξεις το Docker με το WSL 2.
+![Εικόνα 9](images/img12.png)
 
-**Ολοκλήρωση εγκατάστασης**: Όταν η εγκατάσταση ολοκληρωθεί, κάνε κλικ στο **Finish** και το Docker Desktop θα ξεκινήσει αυτόματα. Η εγκατάσταση θα διαρκέσει λίγη ώρα. Θα χρειαστεί να επανεκκινήσετε τον υπολογιστή σας.
+Αν το Docker Desktop ζητήσει λογαριασμό, μπορείτε να παρακάμψετε αυτό το βήμα.
 
-![Εικόνα 8](images/img8.png)
+![Εικόνα 10](images/img3.png)
 
-Μετά την επανεκκίνηση θα σας ζητηθεί να δημιουργήσετε λογαριασμό στην υπηρεσία. Δεν είναι υποχρεωτικό, και μπορείτε να επιλέξετε skip
+### `verify-docker-desktop.sh`
 
-![Εικόνα 3](images/img3.png)
+Όταν το Docker Desktop είναι έτοιμο, ανοίξτε νέο Ubuntu terminal και εκτελέστε τον ακόλουθο έλεγχο.
 
-**Ρύθμιση Docker για χρήση με WSL 2** : Μετά την εγκατάσταση, μπορείς να ανοίξεις το **Docker Desktop** μέσω του **Μενού Έναρξη**.
+<!-- AUTO-CODE: code/00_workstation-setup/02_docker-desktop-wsl/verify-docker-desktop.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-Αν είναι η πρώτη φορά που ανοίγεις το Docker Desktop, θα σε καθοδηγήσει να ενεργοποιήσεις το WSL 2.
+docker version
+docker compose version
+docker run --rm hello-world
+```
+<!-- END AUTO-CODE -->
 
-Σιγουρέψου ότι το **WSL 2** είναι επιλεγμένο ως backend στο Docker Desktop. Για να το ελέγξεις, πήγαινε στο **Settings** (Ρυθμίσεις) του Docker και, στη συνέχεια, στην καρτέλα **General**, έλεγξε ότι η επιλογή **Use the WSL 2 based engine** είναι ενεργοποιημένη.
+Η επιτυχής εκτέλεση του `hello-world` δείχνει ότι το integration μεταξύ Docker Desktop και WSL λειτουργεί κανονικά.
 
-![Εικόνα 21](images/img21.png)
+![Εικόνα 11](images/img5.png)
 
-**Επιλογή διανομής WSL για Docker**: Στην καρτέλα **Resources** του Docker Desktop, μπορείς να δεις ποιες διανομές Linux του WSL είναι διαθέσιμες για χρήση με το Docker. Βεβαιώσου ότι έχεις επιλέξει την διανομή Ubuntu (ή άλλη που έχεις εγκαταστήσει) για χρήση με το Docker.
+![Εικόνα 12](images/img25.png)
 
-![Εικόνα 12](images/img12.png)
+## 03. Native Docker Engine μέσα στο WSL
 
-**Επανεκκίνηση του Docker**: Αν κάνεις αλλαγές στις ρυθμίσεις, πρέπει να επανεκκινήσεις το Docker Desktop για να εφαρμόσουν οι αλλαγές.
+Η διαδρομή αυτή είναι προαιρετική και απευθύνεται σε όσους θέλουν να εργαστούν αποκλειστικά μέσα από το Ubuntu, χωρίς Docker Desktop στα Windows. Το μάθημα την υποστηρίζει, αλλά απαιτεί λίγο προσεκτικότερη διαχείριση του τοπικού περιβάλλοντος.
 
-**Επιβεβαίωση Εγκατάστασης**
-
-Άνοιξε το **ubuntu**** ****terminal** και εκτέλεσε την εντολή για να επιβεβαιώσεις ότι το Docker δουλεύει σωστά:
+Πριν από την εγκατάσταση, ελέγξτε αν το Ubuntu shell τρέχει ήδη με ενεργό `systemd`, εκτελώντας:
 
 ```bash
-docker --version
-```
-![Εικόνα 5](images/img5.png)
-
-Αυτό θα πρέπει να εμφανίσει την έκδοση του Docker που έχεις εγκαταστήσει.
-
-Δοκίμασε να εκτελέσεις την εντολή:
-
-```bash
-docker run hello-world
+systemctl is-system-running
 ```
 
-Αυτή η εντολή θα κατεβάσει και θα εκτελέσει μια απλή εικόνα Docker που εκτυπώνει ένα μήνυμα επιτυχίας αν το Docker είναι σωστά εγκατεστημένο και λειτουργεί.
-![Εικόνα 25](images/img25.png)
+Αν χρειάζεται να ενεργοποιήσετε το `systemd`, χρησιμοποιήστε το παρακάτω περιεχόμενο στο `/etc/wsl.conf`.
 
+### `wsl.conf.example`
 
-**Ενημερώσεις και Ρυθμίσεις**
+<!-- AUTO-CODE: code/00_workstation-setup/03_native-docker-engine/wsl.conf.example -->
+``` ini
+[boot]
+systemd=true
+```
+<!-- END AUTO-CODE -->
 
-**Αναβάθμιση Docker**: Το Docker Desktop ενημερώνεται αυτόματα. Μπορείς να ελέγξεις αν υπάρχουν νέες εκδόσεις στις **Settings** > **Updates**.
+Μετά την αλλαγή, επανεκκινήστε το WSL από PowerShell.
 
-**Ρυθμίσεις πόρων**: Στην καρτέλα **Resources** του Docker Desktop, μπορείς να ρυθμίσεις τη χρήση πόρων όπως CPU, μνήμη (RAM) και δίσκο για το WSL backend.
+### `restart-wsl.ps1`
 
+<!-- AUTO-CODE: code/00_workstation-setup/03_native-docker-engine/restart-wsl.ps1 -->
+``` powershell
+# Restart WSL after editing /etc/wsl.conf.
+wsl --shutdown
+```
+<!-- END AUTO-CODE -->
+
+Ανοίξτε ξανά το Ubuntu και προχωρήστε στην εγκατάσταση του Docker Engine.
+
+### `install-docker-engine.sh`
+
+<!-- AUTO-CODE: code/00_workstation-setup/03_native-docker-engine/install-docker-engine.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+```
+<!-- END AUTO-CODE -->
+
+Μετά την ολοκλήρωση του script, κλείστε και ανοίξτε ξανά το Ubuntu terminal ή εκτελέστε μία φορά `newgrp docker`, ώστε να ενεργοποιηθεί η νέα ομάδα χρήστη.
+
+### `verify-docker.sh`
+
+<!-- AUTO-CODE: code/00_workstation-setup/03_native-docker-engine/verify-docker.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+docker version
+docker compose version
+docker run --rm hello-world
+```
+<!-- END AUTO-CODE -->
+
+Αν ο έλεγχος αυτός ολοκληρωθεί χωρίς `sudo`, τότε η native εγκατάσταση είναι έτοιμη για χρήση στον οδηγό Docker.
+
+## 04. Τελικός έλεγχος και τοπικό clone
+
+Από τη στιγμή που λειτουργούν οι εντολές `docker version`, `docker compose version` και `docker run --rm hello-world`, η προπαρασκευή του περιβάλλοντος είναι ουσιαστικά ολοκληρωμένη. Το τελευταίο βήμα είναι να υπάρχει και τοπικό clone του repository μέσα στο WSL, ώστε τα παραδείγματα των οδηγών να μπορούν να εκτελεστούν απευθείας.
+
+### `clone-cloud-uth.sh`
+
+<!-- AUTO-CODE: code/00_workstation-setup/04_validation/clone-cloud-uth.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd ~
+
+if [ ! -d cloud-uth/.git ]; then
+  git clone https://github.com/ikons/cloud-uth.git
+fi
+
+cd cloud-uth
+```
+<!-- END AUTO-CODE -->
+
+### `verify-workstation.sh`
+
+<!-- AUTO-CODE: code/00_workstation-setup/04_validation/verify-workstation.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd ~/cloud-uth
+git rev-parse --show-toplevel
+docker version
+docker compose version
+docker run --rm hello-world
+```
+<!-- END AUTO-CODE -->
+
+Μετά την επιτυχή ολοκλήρωση του ελέγχου αυτού, μπορείτε να συνεχίσετε στον οδηγό [docs/01_lab1-docker/README.md](../01_lab1-docker/README.md).
+
+## Τι θεωρείται ολοκληρωμένο
+
+- Το WSL2 και το Ubuntu λειτουργούν κανονικά.
+- Έχει επιλεγεί μία από τις δύο διαδρομές Docker και οι εντολές `docker` / `docker compose` λειτουργούν από το Ubuntu shell.
+- Το repository υπάρχει τοπικά στο `~/cloud-uth`.
+- Το περιβάλλον είναι έτοιμο για την εκτέλεση των παραδειγμάτων του `code/01_docker` και για το Kubernetes onboarding που ακολουθεί.

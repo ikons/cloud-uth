@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  containers:
+    - name: postgres
+      image: postgres:17
+      ports:
+        - containerPort: 5432
+      env:
+        # Read non-sensitive settings from the shared ConfigMap.
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: username
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: dbname
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+      volumeMounts:
+        # Persist the database data directory on a PVC.
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        # Mount the initialization SQL script for first-time setup.
+        - name: init-sql
+          mountPath: /docker-entrypoint-initdb.d
+  volumes:
+    - name: postgres-data
+      persistentVolumeClaim:
+        claimName: postgres-pvc
+    - name: init-sql
+      configMap:
+        name: init-sql-script

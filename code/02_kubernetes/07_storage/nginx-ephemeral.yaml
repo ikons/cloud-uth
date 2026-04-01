@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-ephemeral
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+      ports:
+        # This Pod uses only the container filesystem, so data is temporary.
+        - containerPort: 80

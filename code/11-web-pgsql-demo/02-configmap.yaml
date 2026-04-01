@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: db-config
-data:
-  username: postgres
-  dbname: myappdb
-  host: postgres

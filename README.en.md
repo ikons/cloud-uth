@@ -13,9 +13,9 @@ This repository contains:
 
 | Section | Greek Markdown | English Markdown | English Word Guide |
 |--------|----------------|------------------|--------------------|
-| Preparatory lab | [docs/00_Preparatory-lab/README.md](docs/00_Preparatory-lab/README.md) | [docs/00_Preparatory-lab/README.en.md](docs/00_Preparatory-lab/README.en.md) | [odigoi/0_Preparatory lab_Docker-Desktop-wsl.en.docx](odigoi/0_Preparatory%20lab_Docker-Desktop-wsl.en.docx) |
-| Docker lab | [docs/01_lab1-docker/README.md](docs/01_lab1-docker/README.md) | [docs/01_lab1-docker/README.en.md](docs/01_lab1-docker/README.en.md) | [odigoi/01_lab1-docker.en.docx](odigoi/01_lab1-docker.en.docx) |
-| Kubernetes lab | [docs/01_lab1-k8s/README.md](docs/01_lab1-k8s/README.md) | [docs/01_lab1-k8s/README.en.md](docs/01_lab1-k8s/README.en.md) | [odigoi/01_lab1-k8s.en.docx](odigoi/01_lab1-k8s.en.docx) |
+| Workstation setup | [docs/00_Preparatory-lab/README.md](docs/00_Preparatory-lab/README.md) | [docs/00_Preparatory-lab/README.en.md](docs/00_Preparatory-lab/README.en.md) | [odigoi/00_workstation-setup.en.docx](odigoi/00_workstation-setup.en.docx) |
+| Docker lab | [docs/01_lab1-docker/README.md](docs/01_lab1-docker/README.md) | [docs/01_lab1-docker/README.en.md](docs/01_lab1-docker/README.en.md) | [odigoi/01_docker.en.docx](odigoi/01_docker.en.docx) |
+| Kubernetes lab | [docs/01_lab1-k8s/README.md](docs/01_lab1-k8s/README.md) | [docs/01_lab1-k8s/README.en.md](docs/01_lab1-k8s/README.en.md) | [odigoi/02_kubernetes.en.docx](odigoi/02_kubernetes.en.docx) |
 
 ## 🌐 Language Availability
 
@@ -30,8 +30,23 @@ git clone https://github.com/ikons/cloud-uth.git
 cd cloud-uth
 ```
 
+The canonical example code lives under `code/`. Whenever a guide shows a complete example file, that block is synchronized from the repository source so the README and the runnable code stay identical.
+
+## 🧭 Preparation Layout
+
+- `code/00_workstation-setup`: the canonical workstation steps for WSL, Docker Desktop, native Docker Engine, and final environment validation
+
+## 🧭 Example Layout
+
+- `code/01_docker`: the progressive sequence of Docker examples
+- `code/02_kubernetes`: the progressive sequence of Kubernetes examples, from the first Pod and Services up to HPA and the composite web application example
+
+In the preparation path, `docs/00_Preparatory-lab` acts as the central guide, while the canonical scripts and snippets live in the per-step `README.md` and `README.en.md` files under `code/00_workstation-setup/*`.
+
+In the Kubernetes sequence, `docs/01_lab1-k8s` now acts as the central onboarding and navigation guide, while the detailed runnable instructions live inside the per-step `README.md` and `README.en.md` files under `code/02_kubernetes/*`.
+
 > 💡 Make sure you have installed:
-> - Docker Desktop (with WSL2 backend)
+> - `Docker Desktop` (with the WSL2 backend), or optionally a native `Docker Engine` inside WSL
 > - OpenVPN Client
 > - `kubectl` and `k9s`
 
@@ -47,4 +62,4 @@ For any new teaching material, keep the same naming pattern:
 ## 📝 Word Guides
 
 The Word guides under `odigoi/` are generated from the Markdown files in `docs/` with Pandoc.
-On Windows, `scripts/export-docx.ps1` and `make -C docs docx` also use Microsoft Word to refresh the table of contents after export.
+On Windows, `scripts/export-docx.ps1` and `make -C docs docx` first try Microsoft Word to refresh the table of contents after export and fall back to LibreOffice if Word automation is unavailable.

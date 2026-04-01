@@ -1,218 +1,547 @@
 # Docker container usage examples
 
-## 1. Introduction
+## Introduction
 
-This guide will help you learn the basics of **Docker** and run both **simple** and **more advanced** examples.
+This guide will help you learn the basics of **Docker** through 7 examples of increasing complexity. We start from the first `docker run` and work our way up to multi-container applications with Docker Compose.
 
-## 2. Running basic Docker commands
+This guide is intended to run from an Ubuntu/WSL terminal. It assumes that `00_workstation-setup` has already been completed, so `docker version`, `docker compose version`, and `docker run hello-world` work normally from WSL and the repository already exists locally at `~/cloud-uth`.
 
-**Testing Docker**
+All examples are located in the `code/01_docker/` directory of the repository:
+
+| # | Directory | Topic |
+|---|-----------|-------|
+| 01 | `01_hello-docker` | First contact — `docker run`, `ps`, `rm` |
+| 02 | `02_web-server` | Web server — port mapping, logs, exec |
+| 03 | `03_volumes` | Volumes — ephemeral vs persistent storage |
+| 04 | `04_custom-image` | Dockerfile — building a custom image |
+| 05 | `05_environment` | Environment variables — configuration |
+| 06 | `06_compose-basics` | Docker Compose — multiple containers |
+| 07 | `07_compose-multi-web` | Reverse proxy — load balancing |
+
+## 01. Hello Docker — First contact
+
+```bash
+cd ~/cloud-uth/code/01_docker/01_hello-docker
+```
+
+### 01.1 Your first container
 
 ```bash
 docker run hello-world
 ```
 
-This downloads and runs the `hello-world` container.
+What happens:
 
-**Run an Ubuntu container in interactive mode**
+1. Docker looks for the `hello-world` image locally.
+2. If not found, it pulls it from Docker Hub.
+3. It creates a container from that image.
+4. It runs the container, which prints a message and exits.
+
+### 01.2 Running a command inside a container
 
 ```bash
-docker run -it ubuntu bash
+docker run alpine echo "Hello from Alpine Linux!"
 ```
 
-- `-it`: Enables interactive mode, giving the user a terminal shell inside the container that was started.
-- You can run commands such as `ls`, `pwd`, and `exit`.
+`alpine` is a very small Linux image (~5 MB). We run an `echo` command inside it.
 
-**List running containers**
+### 01.3 Interactive container
 
 ```bash
+docker run -it alpine sh
+```
+
+This opens a shell inside the container. Try:
+
+```bash
+hostname
+cat /etc/os-release
+ls /
+exit
+```
+
+Flags:
+
+- `-i` : interactive — keeps stdin open
+- `-t` : allocate pseudo-TTY (terminal)
+
+### 01.4 Inspecting containers
+
+```bash
+# Currently running containers
 docker ps
-```
 
-For all containers, including stopped ones:
-
-```bash
+# All containers (including stopped)
 docker ps -a
 ```
 
-**Delete a container**
+### 01.5 Cleanup
 
 ```bash
+# Remove a stopped container
 docker rm <container_id>
+
+# Remove all stopped containers
+docker container prune
+
+# List images
+docker images
+
+# Remove an image
+docker rmi hello-world
 ```
 
-**Delete a Docker image**
+## 02. Web Server — Port mapping, logs, exec
 
 ```bash
-docker rmi <image_id>
+cd ~/cloud-uth/code/01_docker/02_web-server
 ```
 
-## 3. Running a simple web server with Docker
-
-**Start an Nginx container**
+### 02.1 Start Nginx
 
 ```bash
-docker run -d -p 8080:80 nginx
+docker run -d -p 8080:80 --name my-nginx nginx
 ```
 
-- `-d`: Runs the container in the background.
-- `-p 8080:80`: Maps port **8080** of the **host** to **port 80 of the container**.
+- `-d` : detached mode — runs in the background
+- `-p 8080:80` : maps port 8080 on the host to port 80 inside the container
+- `--name my-nginx` : gives the container a name
 
-**Test it in the browser**  
-Open:
+Open your browser at http://localhost:8080 — you should see the default Nginx page.
 
-http://localhost:8080
-
-You will see the default Nginx page.
-
-## 4. Example 1: Creating a new Docker container with additional files
-
-In this example, we will build a **custom container** based on Ubuntu that includes a simple **Bash script** and runs it when the container starts.
-
-### 4.1 Create a working directory
-
-First, create a new folder for the project:
+### 02.2 Logs
 
 ```bash
-mkdir ~/docker-custom-container
-cd ~/docker-custom-container
+# View logs
+docker logs my-nginx
+
+# Follow logs in real time (Ctrl+C to stop)
+docker logs -f my-nginx
 ```
 
-### 4.2 Create the `script.sh` file
-
-This script prints a message every 5 seconds.
+### 02.3 Executing commands inside the container
 
 ```bash
-nano script.sh
+# Open a shell inside the running container
+docker exec -it my-nginx bash
+
+# Inside the container:
+cat /usr/share/nginx/html/index.html
+exit
 ```
 
-Add the following content:
+### 02.4 Stop and remove
 
 ```bash
-#!/bin/bash
+docker stop my-nginx
+docker rm my-nginx
+```
+
+## 03. Volumes — Ephemeral vs persistent storage
+
+```bash
+cd ~/cloud-uth/code/01_docker/03_volumes
+```
+
+In Docker there are **two types of storage**:
+
+- **Ephemeral** — data is lost when the container is removed
+- **Persistent** — data survives independently of the container
+
+### 03.1 Ephemeral storage — data is lost
+
+```bash
+# Create a file inside a container
+docker run --name temp-nginx -d nginx
+docker exec temp-nginx bash -c "echo 'My custom page' > /usr/share/nginx/html/test.html"
+
+# Verify it exists
+docker exec temp-nginx cat /usr/share/nginx/html/test.html
+
+# Remove the container
+docker stop temp-nginx
+docker rm temp-nginx
+
+# New container — the file is gone
+docker run --name temp-nginx2 -d nginx
+docker exec temp-nginx2 cat /usr/share/nginx/html/test.html
+docker stop temp-nginx2
+docker rm temp-nginx2
+```
+
+### 03.2 Bind mount — linking a file from the host
+
+A bind mount links a host file or directory into the container:
+
+```bash
+docker run -d -p 8080:80 --name web-volumes \
+  -v ./index.html:/usr/share/nginx/html/index.html:ro \
+  nginx
+```
+
+Open http://localhost:8080 — you should see our custom page:
+
+<!-- AUTO-CODE: code/01_docker/03_volumes/index.html -->
+``` html
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Docker Volumes Demo</title>
+</head>
+<body>
+    <h1>Volumes Demo</h1>
+    <p>This page is served from a bind mount!</p>
+    <p>Try editing this file on your host machine and refresh the browser.</p>
+</body>
+</html>
+```
+<!-- END AUTO-CODE -->
+
+Edit the `index.html` file in your editor, change the text, and refresh the browser. The change appears immediately!
+
+- Flag `:ro` = read-only — the container can only read, not write.
+
+```bash
+docker stop web-volumes
+docker rm web-volumes
+```
+
+### 03.3 Named volume — persistent storage
+
+```bash
+# Create a named volume
+docker volume create my-data
+
+# Container that writes to the volume
+docker run -d --name vol-demo \
+  -v my-data:/data alpine \
+  sh -c "echo 'Hello from volume' > /data/message.txt && sleep 3600"
+
+# Read the file
+docker exec vol-demo cat /data/message.txt
+
+# Remove the container
+docker stop vol-demo
+docker rm vol-demo
+
+# New container — the data is still there!
+docker run --rm -v my-data:/data alpine cat /data/message.txt
+```
+
+### 03.4 Cleanup
+
+```bash
+docker volume rm my-data
+```
+
+## 04. Custom Image — Building an image with a Dockerfile
+
+```bash
+cd ~/cloud-uth/code/01_docker/04_custom-image
+```
+
+In this example we build our own Docker image using a `Dockerfile`.
+
+### 04.1 `app.sh`
+
+A simple shell script that will run inside the container:
+
+<!-- AUTO-CODE: code/01_docker/04_custom-image/app.sh -->
+``` bash
+#!/bin/sh
+echo "=== Custom Docker Image ==="
+echo "Hostname: $(hostname)"
+echo "Date: $(date)"
+echo ""
+echo "Container is running..."
+
+count=1
 while true; do
-    echo "The Docker container is running! $(date)"
+    echo "[${count}] Still running at $(date '+%H:%M:%S')"
+    count=$((count + 1))
     sleep 5
 done
 ```
+<!-- END AUTO-CODE -->
 
-Save it (`CTRL` + `X`, then `Y`, then `Enter`).
+### 04.2 `Dockerfile`
 
-**Make the script executable**
+The `Dockerfile` contains the instructions for building the image:
+
+<!-- AUTO-CODE: code/01_docker/04_custom-image/Dockerfile -->
+``` dockerfile
+FROM alpine:latest
+
+# Copy our script into the image
+COPY app.sh /app.sh
+
+# Make it executable
+RUN chmod +x /app.sh
+
+# Default command when the container starts
+CMD ["/app.sh"]
+```
+<!-- END AUTO-CODE -->
+
+- `FROM` : base image we build upon
+- `COPY` : copies files from the host into the image
+- `RUN` : executes a command during build
+- `CMD` : command that runs when the container starts
+
+### 04.3 Build
 
 ```bash
-chmod +x script.sh
+docker build -t my-app .
 ```
 
-### 4.3 Create the `Dockerfile`
+- `-t my-app` : names the image `my-app`
+- `.` : the current directory is the build context
 
-Now we will create the **Dockerfile**, which describes our container.
+### 04.4 Run
 
 ```bash
-nano Dockerfile
+docker run -d --name my-app-container my-app
+
+# Follow logs (Ctrl+C to stop)
+docker logs -f my-app-container
 ```
 
-Paste the following:
-
-```dockerfile
-# Use the Ubuntu image
-FROM ubuntu:latest
-
-# Set the maintainer
-LABEL maintainer="example@example.com"
-
-# Update the system and install bash
-RUN apt-get update && apt-get install -y bash
-
-# Copy the script into the container
-COPY script.sh /script.sh
-
-# Set execution permissions for the script
-RUN chmod +x /script.sh
-
-# Run the script when the container starts
-CMD ["/script.sh"]
-```
-
-Save the file (`CTRL` + `X`, then `Y`, then `Enter`).
-
-### 4.4 Build the Docker image
-
-Now build the Docker image:
-
-```bash
-docker build -t my-custom-container .
-```
-
-### 4.5 Run the container
-
-Run the container in the background:
-
-```bash
-docker run -d --name my-container my-custom-container
-```
-
-To view the container logs in real time:
-
-```bash
-docker logs -f my-container
-```
-
-You will see messages such as:
+You will see output every 5 seconds:
 
 ```
-The Docker container is running! Tue Mar 5 12:00:00 UTC 2025
-The Docker container is running! Tue Mar 5 12:00:05 UTC 2025
+=== Custom Docker Image ===
+Hostname: bc01dce2fb4d
+Date: Wed Apr  1 12:00:00 UTC 2026
+
+Container is running...
+[1] Still running at 12:00:00
+[2] Still running at 12:00:05
 ...
 ```
 
-### 4.6 Management and cleanup
-
-**Stop the container**
+### 04.5 Inspect the image
 
 ```bash
-docker stop my-container
+# List images
+docker images | grep my-app
+
+# View image layers
+docker history my-app
 ```
 
-**Delete the container**
+### 04.6 Cleanup
 
 ```bash
-docker rm my-container
+docker stop my-app-container
+docker rm my-app-container
+docker rmi my-app
 ```
 
-**Delete the image**
+## 05. Environment Variables — Configuring containers
 
 ```bash
-docker rmi my-custom-container
+cd ~/cloud-uth/code/01_docker/05_environment
 ```
 
-## 5. Example 2: Running a more advanced setup with Nginx and multiple web servers
+Environment variables let us change the behavior of a container **without modifying code or rebuilding the image**.
 
-We will create a **Docker Compose setup** with:
+### 05.1 Files
 
-- **Nginx** as a **reverse proxy**
-- **Two web servers** with simple HTML pages
+**`app.sh`** — a script that reads environment variables:
 
-### 5.1 Create a working directory
+<!-- AUTO-CODE: code/01_docker/05_environment/app.sh -->
+``` bash
+#!/bin/sh
+echo "=== Application Configuration ==="
+echo "APP_NAME: ${APP_NAME:-not set}"
+echo "APP_ENV:  ${APP_ENV:-not set}"
+echo "APP_PORT: ${APP_PORT:-not set}"
+echo "================================="
+echo ""
+echo "Application is running..."
+
+while true; do
+    echo "[${APP_NAME:-app}] Running in ${APP_ENV:-unknown} mode on port ${APP_PORT:-?}"
+    sleep 5
+done
+```
+<!-- END AUTO-CODE -->
+
+**`Dockerfile`** — defines default values with `ENV`:
+
+<!-- AUTO-CODE: code/01_docker/05_environment/Dockerfile -->
+``` dockerfile
+FROM alpine:latest
+
+# Default values for environment variables
+ENV APP_NAME=my-app
+ENV APP_ENV=development
+ENV APP_PORT=8080
+
+COPY app.sh /app.sh
+RUN chmod +x /app.sh
+
+CMD ["/app.sh"]
+```
+<!-- END AUTO-CODE -->
+
+### 05.2 Build and run with defaults
 
 ```bash
-mkdir ~/docker-nginx-multi
-cd ~/docker-nginx-multi
+docker build -t env-app .
+docker run --rm --name env-demo env-app
 ```
 
-### 5.2 Create `docker-compose.yml`
+You will see the default values: `APP_NAME=my-app`, `APP_ENV=development`, `APP_PORT=8080`.
 
-Run:
+Press `Ctrl+C` to stop.
+
+### 05.3 Override variables
 
 ```bash
-nano docker-compose.yml
+docker run --rm --name env-demo \
+  -e APP_NAME=cloud-app \
+  -e APP_ENV=production \
+  -e APP_PORT=3000 \
+  env-app
 ```
 
-Paste the following content:
+The values change without rebuilding!
 
-```yaml
-version: "3.8"
+### 05.4 Inspect container variables
 
+```bash
+docker run -d --name env-inspect env-app
+docker exec env-inspect env
+docker stop env-inspect
+docker rm env-inspect
+```
+
+### 05.5 Cleanup
+
+```bash
+docker rmi env-app
+```
+
+## 06. Docker Compose — Multiple containers together
+
+```bash
+cd ~/cloud-uth/code/01_docker/06_compose-basics
+```
+
+So far we have been running containers individually. In practice, an application consists of multiple services (web server, database, cache, etc.). **Docker Compose** lets us define them together in a single `docker-compose.yml` file.
+
+### 06.1 `docker-compose.yml`
+
+<!-- AUTO-CODE: code/01_docker/06_compose-basics/docker-compose.yml -->
+``` yaml
+services:
+  web:
+    image: nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: student
+      POSTGRES_PASSWORD: secret123
+      POSTGRES_DB: mydb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+```
+<!-- END AUTO-CODE -->
+
+What we see:
+
+- **2 services**: `web` (Nginx) and `db` (PostgreSQL)
+- **ports**: the web server is accessible at `localhost:8080`
+- **environment**: the database is configured via environment variables
+- **volumes**: database data is stored in a named volume
+- **depends_on**: web starts after the database
+
+### 06.2 Start
+
+```bash
+docker compose up -d
+```
+
+### 06.3 Verify
+
+```bash
+# Running containers
+docker compose ps
+
+# Logs
+docker compose logs
+
+# Logs for a single service
+docker compose logs db
+```
+
+### 06.4 Connect to the database
+
+```bash
+docker compose exec db psql -U student -d mydb
+```
+
+Inside `psql` try:
+
+```sql
+\l
+\q
+```
+
+### 06.5 Service discovery
+
+Containers in the same compose network can communicate using the **service name** as a hostname. For example, the web server can reach the database at hostname `db`.
+
+### 06.6 Shutdown
+
+```bash
+# Stop containers
+docker compose down
+
+# Stop and remove volumes (data is lost)
+docker compose down -v
+```
+
+## 07. Reverse Proxy — Load balancing with Docker Compose
+
+```bash
+cd ~/cloud-uth/code/01_docker/07_compose-multi-web
+```
+
+Advanced example: an **Nginx reverse proxy** in front of **two web servers**, with load balancing.
+
+### 07.1 Architecture
+
+```
+                    ┌──────────┐
+  Browser ──:8080──▶│  nginx   │
+                    │  proxy   │
+                    └────┬─────┘
+                         │
+                    ┌────┴─────┐
+                    │ mynetwork│
+                    ┌────┴─────┐
+              ┌─────┴──┐  ┌───┴────┐
+              │  web1   │  │  web2  │
+              └─────────┘  └────────┘
+```
+
+The proxy receives requests on port 8080 and distributes them alternately to web1 and web2 (round-robin).
+
+### 07.2 `docker-compose.yml`
+
+<!-- AUTO-CODE: code/01_docker/07_compose-multi-web/docker-compose.yml -->
+``` yaml
 services:
   web1:
     image: nginx
@@ -246,38 +575,30 @@ services:
 networks:
   mynetwork:
 ```
+<!-- END AUTO-CODE -->
 
-### 5.3 Create folders for the HTML files
+### 07.3 HTML files
 
-```bash
-mkdir web1 web2
+**Web1:**
+
+<!-- AUTO-CODE: code/01_docker/07_compose-multi-web/web1/index.html -->
+``` html
+<h1>Welcome to Web1</h1>
 ```
+<!-- END AUTO-CODE -->
 
-### 5.4 Create HTML pages
+**Web2:**
 
-For the **Web1 server**:
-
-```bash
-echo "<h1>Welcome to Web1</h1>" > web1/index.html
+<!-- AUTO-CODE: code/01_docker/07_compose-multi-web/web2/index.html -->
+``` html
+<h1>Welcome to Web2</h1>
 ```
+<!-- END AUTO-CODE -->
 
-For the **Web2 server**:
+### 07.4 `nginx.conf`
 
-```bash
-echo "<h1>Welcome to Web2</h1>" > web2/index.html
-```
-
-### 5.5 Create the `nginx.conf` file (reverse proxy)
-
-Run:
-
-```bash
-nano nginx.conf
-```
-
-Paste the following:
-
-```nginx
+<!-- AUTO-CODE: code/01_docker/07_compose-multi-web/nginx.conf -->
+``` nginx
 events {}
 
 http {
@@ -295,130 +616,40 @@ http {
     }
 }
 ```
+<!-- END AUTO-CODE -->
 
-**Start the containers**
+- `upstream backend` : defines a server group — uses the service names as hostnames
+- `proxy_pass` : forwards requests to the group
+- Round-robin: each request goes alternately to web1 and web2
+
+### 07.5 Start and test
 
 ```bash
 docker compose up -d
 ```
 
-**Test in the browser**
+Open http://localhost:8080 and refresh multiple times — you should see "Welcome to Web1" and "Welcome to Web2" alternating.
 
-Open:
-
-http://localhost:8080
-
-Nginx will alternate requests between **Web1** and **Web2**.
-
-## 6. Docker Volumes: Difference between ephemeral and persistent volumes
-
-In Docker, there are **two types of data storage**:
-
-- **Ephemeral storage** – Data is lost when the container is deleted.
-- **Persistent storage** – Data is preserved independently of the container.
-
-Let us look at the difference using practical examples.
-
-### 6.1 Ephemeral storage (data is lost)
-
-The data is stored inside the container filesystem and **does not survive** when the container is deleted.
-
-**Step 1: Start a container and create a file**
+Alternatively, from the terminal:
 
 ```bash
-docker run -it --name temp-container ubuntu bash
+curl http://localhost:8080
+curl http://localhost:8080
+curl http://localhost:8080
 ```
 
-Inside the container, create a file:
+### 07.6 Inspect the network
 
 ```bash
-echo "Temporary data" > /tmp/tempfile.txt
-cat /tmp/tempfile.txt
+# Docker networks
+docker network ls
+
+# Containers in the network
+docker network inspect 07_compose-multi-web_mynetwork
 ```
 
-You will see:
-
-```
-Temporary data
-```
-
-**Step 2: Delete the container and check the data**
-
-Delete the container:
+### 07.7 Shutdown
 
 ```bash
-docker rm temp-container
-```
-
-Start a **new container** and check whether the file exists:
-
-```bash
-docker run -it ubuntu bash
-ls /tmp
-```
-
-The file **does not exist** because the container filesystem was ephemeral.
-
-### 6.2 Persistent storage (data is preserved)
-
-The data is stored **outside the container**, in a Docker **Volume**, and remains available even after the container is deleted.
-
-**Step 1: Create a volume**
-
-```bash
-docker volume create mydata
-```
-
-Confirm that the volume was created:
-
-```bash
-docker volume ls
-```
-
-**Step 2: Start a container with the volume**
-
-```bash
-docker run -it --name persistent-container -v mydata:/data ubuntu bash
-```
-
-Inside the container, create a file:
-
-```bash
-echo "Persistent data" > /data/persistentfile.txt
-cat /data/persistentfile.txt
-```
-
-You will see:
-
-```
-Persistent data
-```
-
-Exit the container:
-
-```bash
-exit
-```
-
-**Step 3: Delete the container and verify the data**
-
-Delete the container:
-
-```bash
-docker rm persistent-container
-```
-
-Now start a new container and check whether the data still exists:
-
-```bash
-docker run -it --rm -v mydata:/data ubuntu bash
-ls /data
-cat /data/persistentfile.txt
-```
-
-You will see that the file **still exists**:
-
-```
-persistentfile.txt
-Persistent data
+docker compose down
 ```

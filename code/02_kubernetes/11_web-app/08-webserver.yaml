@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webserver
+  labels:
+    app: webserver
+spec:
+  containers:
+    - name: php-apache
+      image: webdevops/php-apache:8.1
+      ports:
+        - containerPort: 80
+      env:
+        # Resolve the database endpoint and credentials from ConfigMap and Secret resources.
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: host
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: dbname
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+      volumeMounts:
+        # Serve the PHP file mounted from the ConfigMap under /app.
+        - name: web-content
+          mountPath: /app
+  volumes:
+    - name: web-content
+      configMap:
+        name: web-content

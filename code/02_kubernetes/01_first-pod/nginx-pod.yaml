@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-nginx
+  labels:
+    # Keep a simple application label for later kubectl selectors.
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+      ports:
+        # Expose HTTP inside the Pod network namespace.
+        - containerPort: 80

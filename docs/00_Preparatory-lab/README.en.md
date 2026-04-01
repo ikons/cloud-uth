@@ -1,140 +1,254 @@
-# Preparatory instructions for running Docker containers locally on your computer
+# Workstation setup (WSL + Docker)
 
-The course includes a laboratory component. For the lab sessions, we will use Docker Containers. This guide contains the preparatory steps that you are expected to complete before the first lab. These steps include setting up the Windows Subsystem for Linux (WSL) and Docker Desktop on a personal computer.
+The laboratory part of the course assumes that each student can work from an Ubuntu environment inside WSL and execute Docker commands from that same shell. This guide covers only that preparatory phase. When it is complete, the workstation will be ready for the Docker guide and for the Kubernetes onboarding material.
 
-## 1. Enabling WSL and Virtual Machine Platform
+The canonical code and helper files of the preparatory workflow now live under `code/00_workstation-setup`. If you are reading this material before creating your first local clone, treat the snippets below as the authoritative execution steps and continue to step `04`, where the repository clone is also created.
 
-First, you need to enable WSL and the Virtual Machine Platform feature in Windows.
+## Preparation structure
 
-**Open PowerShell as administrator:** Right-click the **Start** menu and select **Windows Terminal (Administrator)** or **PowerShell (Administrator)**.
+| # | Directory | Goal |
+|---|-----------|------|
+| 01 | `code/00_workstation-setup/01_wsl-bootstrap` | Enable WSL2, install Ubuntu, and prepare the baseline tools |
+| 02 | `code/00_workstation-setup/02_docker-desktop-wsl` | Recommended setup with Docker Desktop and WSL integration |
+| 03 | `code/00_workstation-setup/03_native-docker-engine` | Optional setup with a native Docker Engine inside WSL |
+| 04 | `code/00_workstation-setup/04_validation` | Final validation and local repository clone |
+
+## 01. WSL and Ubuntu
+
+Before using Docker, Windows must provide a working `WSL2` environment and an Ubuntu distribution. This step enables the required Windows features, installs Ubuntu, and prepares the shell with the minimum tools needed immediately afterward.
+
+Open PowerShell as administrator from the Start menu.
 
 ![Figure 1](images/img1.png)
 
-Run the following commands to enable WSL and Virtual Machine Platform. After running them, restart your computer.
+### `enable-wsl.ps1`
 
-```bash
-wsl --install
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+Run the following contents first from an elevated PowerShell session. A Windows restart is required afterward.
+
+<!-- AUTO-CODE: code/00_workstation-setup/01_wsl-bootstrap/enable-wsl.ps1 -->
+``` powershell
+# Run this script from an elevated PowerShell window.
+wsl --install --no-distribution
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 ```
+<!-- END AUTO-CODE -->
+
 ![Figure 2](images/img23.png)
 
 ![Figure 3](images/img20.png)
 
-### 1.1 Ubuntu configuration
+### `install-ubuntu.ps1`
 
-**Open Ubuntu:** After installation, click the **Start** menu and search for **Ubuntu**. Click it to open it.
+After the restart, complete the Ubuntu installation.
+
+<!-- AUTO-CODE: code/00_workstation-setup/01_wsl-bootstrap/install-ubuntu.ps1 -->
+``` powershell
+# Install Ubuntu after the first restart.
+wsl --install -d Ubuntu
+```
+<!-- END AUTO-CODE -->
+
+Then open Ubuntu from the Start menu and create the WSL user account.
 
 ![Figure 4](images/img4.png)
 
-**Set up a user account and password:** The first time Ubuntu starts, you will be asked to create a user and set a password. This user will be the main user for your Ubuntu installation.
+![Figure 5](images/img7.png)
 
-![Figure 7](images/img7.png)
+### `ubuntu-first-update.sh`
 
-### 1.2 Upgrades and updates
+From the Ubuntu terminal, update the system and install the first required tools. Having `git` available already at this stage is useful because the local repository clone can then happen immediately without an extra preparatory step.
 
-Once Ubuntu is ready, it is a good idea to run a few commands to make sure your system is up to date.
+<!-- AUTO-CODE: code/00_workstation-setup/01_wsl-bootstrap/ubuntu-first-update.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-**Upgrade system packages:** Run the following command to upgrade the system packages:
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y git curl ca-certificates
 
-```bash
-sudo apt update && sudo apt upgrade -y
+git --version
+curl --version
 ```
+<!-- END AUTO-CODE -->
 
-**Check the WSL status**
+### `check-wsl.ps1`
 
-Open PowerShell (as administrator) and run the following command:
+Finally, return to PowerShell to verify that WSL and `VirtualMachinePlatform` are configured correctly.
 
-```bash
+<!-- AUTO-CODE: code/00_workstation-setup/01_wsl-bootstrap/check-wsl.ps1 -->
+``` powershell
+# Show the installed distributions and their WSL versions.
 wsl --list --verbose
-```
-![Figure 5](images/img2.png)
 
-This command shows the installed Linux distributions and indicates which one is the default. If WSL has been installed correctly, you should see the Ubuntu distribution (or another distribution that you installed).
-
-**Check whether Virtual Machine Platform is enabled**
-
-To verify that Virtual Machine Platform is enabled, run the following command:
-
-```bash
+# Confirm that the Virtual Machine Platform feature is enabled.
 Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
 ```
+<!-- END AUTO-CODE -->
 
-If Virtual Machine Platform is enabled, the feature status should be **Enabled**.
+If the installation completed correctly, `Ubuntu` appears with version `2` and `VirtualMachinePlatform` appears as `Enabled`.
 
-**Check the current WSL version**
+## 02. Docker Desktop with WSL integration
 
-To check which WSL version (1 or 2) you are using, run the following command:
+For most students, this is the recommended path. The Docker daemon remains managed by Docker Desktop, while everyday work is performed from the Ubuntu terminal inside WSL, which is also the shell environment used by the following guides.
 
-```bash
-wsl --list --verbose
-```
-
-You will see the WSL version for each Linux distribution (for example, 2 for WSL 2 or 1 for WSL 1).
-
-If everything is configured correctly, WSL and Virtual Machine Platform should appear as enabled, and Ubuntu or another Linux distribution should be available for use on your system.
-
-## 2. Installing Docker Desktop
-
-Go to the official Docker page and download the latest version of Docker Desktop for Windows x86_64:
+Download Docker Desktop from the official Docker page for Windows x86_64:
 
 https://docs.docker.com/desktop/setup/install/windows-install/
 
-**Run the installer:** Double-click the installation file you downloaded and follow the installation wizard.
+During installation, make sure that `Use the WSL 2 based engine` remains enabled.
 
-![Figure 18](images/img18.png)
+![Figure 6](images/img18.png)
 
-**Installation options:**
+![Figure 7](images/img11.png)
 
-During installation, make sure that the **Use the WSL 2 based engine** option is selected.
+After installation, open Docker Desktop, confirm that the `WSL 2 based engine` is still enabled, and enable the Ubuntu distribution under `Resources -> WSL Integration`.
 
-![Figure 11](images/img11.png)
+![Figure 8](images/img21.png)
 
-Docker Desktop will also install the **Docker Desktop WSL 2 Backend**, which is required in order to run Docker with WSL 2.
+![Figure 9](images/img12.png)
 
-**Complete the installation:** When the installation finishes, click **Finish** and Docker Desktop will start automatically. The installation may take a little while. You will need to restart your computer.
+If Docker Desktop asks for an account, you may skip that step.
 
-![Figure 8](images/img8.png)
+![Figure 10](images/img3.png)
 
-After the restart, you may be asked to create an account for the service. This is not mandatory, and you may choose **Skip**.
+### `verify-docker-desktop.sh`
 
-![Figure 9](images/img3.png)
+Once Docker Desktop is ready, open a new Ubuntu terminal and run the following validation.
 
-**Configure Docker to use WSL 2:** After installation, you can open **Docker Desktop** from the **Start Menu**.
+<!-- AUTO-CODE: code/00_workstation-setup/02_docker-desktop-wsl/verify-docker-desktop.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-If this is the first time you open Docker Desktop, it may guide you through enabling WSL 2.
+docker version
+docker compose version
+docker run --rm hello-world
+```
+<!-- END AUTO-CODE -->
 
-Make sure that **WSL 2** is selected as the backend in Docker Desktop. To check this, go to **Settings** in Docker, then to the **General** tab, and verify that **Use the WSL 2 based engine** is enabled.
+The successful execution of `hello-world` shows that the integration between Docker Desktop and WSL is working normally.
 
-![Figure 21](images/img21.png)
+![Figure 11](images/img5.png)
 
-**Select the WSL distribution for Docker:** In the **Resources** tab of Docker Desktop, you can see which WSL Linux distributions are available for use with Docker. Make sure that the Ubuntu distribution (or another one you installed) is enabled for Docker.
+![Figure 12](images/img25.png)
 
-![Figure 12](images/img12.png)
+## 03. Native Docker Engine inside WSL
 
-**Restart Docker:** If you make changes to the settings, restart Docker Desktop so that the changes take effect.
+This path is optional and is intended for students who prefer to work entirely from Ubuntu without Docker Desktop on Windows. The course supports it, but it requires slightly more careful local environment management.
 
-**Confirm the installation**
-
-Open the **Ubuntu terminal** and run the following command to verify that Docker is working correctly:
+Before installation, check whether the Ubuntu shell already runs with `systemd` enabled by executing:
 
 ```bash
-docker --version
-```
-![Figure 10](images/img5.png)
-
-This should display the version of Docker that you installed.
-
-Then try running the command:
-
-```bash
-docker run hello-world
+systemctl is-system-running
 ```
 
-This command downloads and runs a simple Docker image that prints a success message if Docker is installed and working correctly.
-![Figure 25](images/img25.png)
+If you need to enable `systemd`, use the following contents in `/etc/wsl.conf`.
 
-**Updates and settings**
+### `wsl.conf.example`
 
-**Update Docker:** Docker Desktop updates automatically. You can check for new versions under **Settings** > **Updates**.
+<!-- AUTO-CODE: code/00_workstation-setup/03_native-docker-engine/wsl.conf.example -->
+``` ini
+[boot]
+systemd=true
+```
+<!-- END AUTO-CODE -->
 
-**Resource settings:** In the **Resources** tab of Docker Desktop, you can configure how much CPU, memory (RAM), and disk space are available to the WSL backend.
+After the change, restart WSL from PowerShell.
+
+### `restart-wsl.ps1`
+
+<!-- AUTO-CODE: code/00_workstation-setup/03_native-docker-engine/restart-wsl.ps1 -->
+``` powershell
+# Restart WSL after editing /etc/wsl.conf.
+wsl --shutdown
+```
+<!-- END AUTO-CODE -->
+
+Open Ubuntu again and continue with the Docker Engine installation.
+
+### `install-docker-engine.sh`
+
+<!-- AUTO-CODE: code/00_workstation-setup/03_native-docker-engine/install-docker-engine.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+```
+<!-- END AUTO-CODE -->
+
+After the script completes, close and reopen the Ubuntu terminal or run `newgrp docker` once so that the new group membership becomes active.
+
+### `verify-docker.sh`
+
+<!-- AUTO-CODE: code/00_workstation-setup/03_native-docker-engine/verify-docker.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+docker version
+docker compose version
+docker run --rm hello-world
+```
+<!-- END AUTO-CODE -->
+
+If this validation completes without `sudo`, then the native installation is ready for the Docker guide.
+
+## 04. Final validation and local clone
+
+Once `docker version`, `docker compose version`, and `docker run --rm hello-world` work, the workstation preparation is essentially complete. The final step is to ensure that the repository also exists as a local clone inside WSL so that the examples from the guides can be executed directly.
+
+### `clone-cloud-uth.sh`
+
+<!-- AUTO-CODE: code/00_workstation-setup/04_validation/clone-cloud-uth.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd ~
+
+if [ ! -d cloud-uth/.git ]; then
+  git clone https://github.com/ikons/cloud-uth.git
+fi
+
+cd cloud-uth
+```
+<!-- END AUTO-CODE -->
+
+### `verify-workstation.sh`
+
+<!-- AUTO-CODE: code/00_workstation-setup/04_validation/verify-workstation.sh -->
+``` bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd ~/cloud-uth
+git rev-parse --show-toplevel
+docker version
+docker compose version
+docker run --rm hello-world
+```
+<!-- END AUTO-CODE -->
+
+After this check succeeds, you can continue to [docs/01_lab1-docker/README.en.md](../01_lab1-docker/README.en.md).
+
+## What counts as complete
+
+- WSL2 and Ubuntu work normally.
+- One of the two Docker paths has been completed and the `docker` / `docker compose` commands work from the Ubuntu shell.
+- The repository exists locally at `~/cloud-uth`.
+- The environment is ready for the examples under `code/01_docker` and for the Kubernetes onboarding material that follows.

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-config
+spec:
+  containers:
+    - name: app
+      image: alpine:latest
+      command: ["sh", "-c"]
+      args:
+        - |
+          # Print both the injected environment variables and the mounted file.
+          echo "=== Environment Variables from ConfigMap ==="
+          echo "APP_COLOR: $APP_COLOR"
+          echo "APP_MODE: $APP_MODE"
+          echo ""
+          echo "=== File from ConfigMap ==="
+          cat /config/welcome.txt
+          echo ""
+          echo "Sleeping..."
+          sleep 3600
+      env:
+        - name: APP_COLOR
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: APP_COLOR
+        - name: APP_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: APP_MODE
+      volumeMounts:
+        # Mount the ConfigMap as regular files under /config.
+        - name: config-volume
+          mountPath: /config
+  volumes:
+    - name: config-volume
+      configMap:
+        name: app-config

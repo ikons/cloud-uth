@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-pod
+  labels:
+    # The Service selects this Pod through the app label.
+    app: web
+    tier: frontend
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+      ports:
+        # Nginx listens on port 80 inside the container.
+        - containerPort: 80

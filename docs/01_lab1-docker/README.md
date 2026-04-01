@@ -1,219 +1,548 @@
 
-# Παραδείγματα χρήσης docker containers
+# Παραδείγματα χρήσης Docker containers
 
+## Εισαγωγή
 
-## 1. Εισαγωγή
+Αυτός ο οδηγός θα σας βοηθήσει να μάθετε τα βασικά του **Docker** μέσα από 7 παραδείγματα με αυξανόμενη πολυπλοκότητα. Ξεκινάμε από το πρώτο `docker run` και φτάνουμε μέχρι multi-container εφαρμογές με Docker Compose.
 
-Αυτός ο οδηγός θα σας βοηθήσει να μάθετε τα βασικά του **Docker** και να εκτελέσετε **απλά** και **πιο σύνθετα** παραδείγματα.
+Ο οδηγός εκτελείται από τερματικό Ubuntu/WSL. Προϋποθέτει ότι έχει ήδη ολοκληρωθεί ο οδηγός `00_workstation-setup`, άρα οι εντολές `docker version`, `docker compose version` και `docker run hello-world` λειτουργούν κανονικά από το WSL και το repository υπάρχει ήδη τοπικά στο `~/cloud-uth`.
 
-## 2. Εκτέλεση βασικών εντολών Docker
+Τα παραδείγματα βρίσκονται στον φάκελο `code/01_docker/` του αποθετηρίου:
 
-**Δοκιμή του Docker**
+| # | Φάκελος | Θέμα |
+|---|---------|------|
+| 01 | `01_hello-docker` | Πρώτη επαφή — `docker run`, `ps`, `rm` |
+| 02 | `02_web-server` | Web server — port mapping, logs, exec |
+| 03 | `03_volumes` | Volumes — ephemeral vs persistent storage |
+| 04 | `04_custom-image` | Dockerfile — δημιουργία custom image |
+| 05 | `05_environment` | Environment variables — παραμετροποίηση |
+| 06 | `06_compose-basics` | Docker Compose — πολλαπλά containers |
+| 07 | `07_compose-multi-web` | Reverse proxy — load balancing |
+
+## 01. Hello Docker — Πρώτη επαφή
+
+```bash
+cd ~/cloud-uth/code/01_docker/01_hello-docker
+```
+
+### 01.1 Το πρώτο container
 
 ```bash
 docker run hello-world
 ```
 
-Αυτό θα κατεβάσει και θα εκτελέσει το κοντέινερ `hello-world`.
+Τι συμβαίνει:
 
-Εκτέλεση Ubuntu κοντέινερ με διαδραστική (interactive) λειτουργία
+1. Ο Docker ψάχνει τοπικά το image `hello-world`.
+2. Αν δεν το βρει, το κατεβάζει από το Docker Hub (`pull`).
+3. Δημιουργεί ένα container από αυτό το image.
+4. Τρέχει το container, που τυπώνει ένα μήνυμα και τερματίζει.
+
+### 01.2 Εκτέλεση εντολής μέσα σε container
 
 ```bash
-docker run -it ubuntu bash
+docker run alpine echo "Hello from Alpine Linux!"
 ```
 
-- `-it`: Ενεργοποιεί τη διαδραστική λειτουργία, επιστρέφει δηλαδή στον χρήστη κονσόλα τερματικού στον περιέκτη που ξεκίνησε.
-- Μπορείτε να εκτελέσετε εντολές όπως `ls`, `pwd`, `exit`.
+Το `alpine` είναι ένα πολύ μικρό Linux image (~5 MB). Τρέχουμε μια εντολή `echo` μέσα σε αυτό.
 
-Προβολή τρεχόντων κοντέινερ
+### 01.3 Διαδραστικό container
 
 ```bash
+docker run -it alpine sh
+```
+
+Ανοίγει ένα shell μέσα στο container. Δοκιμάστε:
+
+```bash
+hostname
+cat /etc/os-release
+ls /
+exit
+```
+
+Flags:
+
+- `-i` : interactive — κρατάει ανοιχτό το stdin
+- `-t` : allocate pseudo-TTY (terminal)
+
+### 01.4 Εξέταση containers
+
+```bash
+# Τρέχοντα containers
 docker ps
-```
 
-Για όλα τα κοντέινερ (συμπεριλαμβανομένων των σταματημένων):
-
-```bash
+# Όλα τα containers (και τα σταματημένα)
 docker ps -a
 ```
 
-Διαγραφή κοντέινερ
+### 01.5 Καθαρισμός
 
 ```bash
+# Διαγραφή ενός σταματημένου container
 docker rm <container_id>
+
+# Διαγραφή όλων των σταματημένων containers
+docker container prune
+
+# Λίστα images
+docker images
+
+# Διαγραφή image
+docker rmi hello-world
 ```
 
-Διαγραφή εικόνας Docker
+## 02. Web Server — Port mapping, logs, exec
 
 ```bash
-docker rmi <image_id>
+cd ~/cloud-uth/code/01_docker/02_web-server
 ```
 
-## 3. Εκτέλεση ενός απλού web server με Docker
-
-Εκκίνηση ενός Nginx κοντέινερ
+### 02.1 Εκκίνηση Nginx
 
 ```bash
-docker run -d -p 8080:80 nginx
+docker run -d -p 8080:80 --name my-nginx nginx
 ```
 
-- `-d`: Εκτελείται στο παρασκήνιο.
+- `-d` : detached mode — τρέχει στο background
+- `-p 8080:80` : συνδέει τη θύρα 8080 του host με τη θύρα 80 του container
+- `--name my-nginx` : δίνει όνομα στο container
 
-- `-p 8080:80`: Χαρτογραφεί τη θύρα **8080** του **host** στη **θύρα 80 του κοντέινερ**.
+Ανοίξτε τον browser στο http://localhost:8080 — θα δείτε τη default σελίδα του Nginx.
 
-Δοκιμή στο πρόγραμμα περιήγησης
-Ανοίξτε το:
-
-http://localhost:8080
-
-Θα δείτε την προεπιλεγμένη σελίδα του Nginx.
-
-## 4. Παράδειγμα 1: Δημιουργία νέου Docker κοντέινερ με προσθήκη αρχείων
-
-Σε αυτό το παράδειγμα, θα φτιάξουμε ένα **custom κοντέινερ** με βάση το Ubuntu, το οποίο θα περιέχει ένα απλό **script σε Bash** και θα το εκτελεί κατά την εκκίνηση.
-
-### 4.1 Δημιουργία φακέλου εργασίας
-
-Αρχικά, δημιουργούμε έναν νέο φάκελο για το project:
+### 02.2 Logs
 
 ```bash
-mkdir ~/docker-custom-container
-cd ~/docker-custom-container
+# Εμφάνιση logs
+docker logs my-nginx
+
+# Παρακολούθηση logs σε πραγματικό χρόνο (Ctrl+C για διακοπή)
+docker logs -f my-nginx
 ```
 
-### 4.2 Δημιουργία αρχείου `script.sh`
-
-Αυτό το script θα τυπώνει ένα μήνυμα κάθε 5 δευτερόλεπτα.
+### 02.3 Εκτέλεση εντολής μέσα στο container
 
 ```bash
-nano script.sh
+# Άνοιγμα shell στο container που τρέχει
+docker exec -it my-nginx bash
+
+# Μέσα στο container:
+cat /usr/share/nginx/html/index.html
+exit
 ```
 
-Προσθέστε το παρακάτω περιεχόμενο:
+### 02.4 Σταμάτημα και διαγραφή
 
 ```bash
-#!/bin/bash
+docker stop my-nginx
+docker rm my-nginx
+```
+
+## 03. Volumes — Ephemeral vs persistent storage
+
+```bash
+cd ~/cloud-uth/code/01_docker/03_volumes
+```
+
+Στο Docker υπάρχουν **δύο τύποι αποθήκευσης**:
+
+- **Ephemeral (προσωρινή)** — τα δεδομένα χάνονται όταν το container διαγραφεί
+- **Persistent (μόνιμη)** — τα δεδομένα διατηρούνται ανεξάρτητα από το container
+
+### 03.1 Ephemeral storage — τα δεδομένα χάνονται
+
+```bash
+# Δημιουργούμε αρχείο μέσα στο container
+docker run --name temp-nginx -d nginx
+docker exec temp-nginx bash -c "echo 'My custom page' > /usr/share/nginx/html/test.html"
+
+# Επιβεβαίωση
+docker exec temp-nginx cat /usr/share/nginx/html/test.html
+
+# Διαγραφή container
+docker stop temp-nginx
+docker rm temp-nginx
+
+# Νέο container — το αρχείο δεν υπάρχει πια
+docker run --name temp-nginx2 -d nginx
+docker exec temp-nginx2 cat /usr/share/nginx/html/test.html
+docker stop temp-nginx2
+docker rm temp-nginx2
+```
+
+### 03.2 Bind mount — σύνδεση αρχείου από τον host
+
+Ένα bind mount συνδέει ένα αρχείο ή φάκελο του host μέσα στο container:
+
+```bash
+docker run -d -p 8080:80 --name web-volumes \
+  -v ./index.html:/usr/share/nginx/html/index.html:ro \
+  nginx
+```
+
+Ανοίξτε http://localhost:8080 — θα δείτε τη δική μας σελίδα:
+
+<!-- AUTO-CODE: code/01_docker/03_volumes/index.html -->
+``` html
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Docker Volumes Demo</title>
+</head>
+<body>
+    <h1>Volumes Demo</h1>
+    <p>This page is served from a bind mount!</p>
+    <p>Try editing this file on your host machine and refresh the browser.</p>
+</body>
+</html>
+```
+<!-- END AUTO-CODE -->
+
+Επεξεργαστείτε το αρχείο `index.html` στον editor σας, αλλάξτε το κείμενο και κάντε refresh τον browser. Η αλλαγή εμφανίζεται αμέσως!
+
+- Flag `:ro` = read-only — το container μπορεί μόνο να διαβάσει, όχι να γράψει.
+
+```bash
+docker stop web-volumes
+docker rm web-volumes
+```
+
+### 03.3 Named volume — μόνιμη αποθήκευση
+
+```bash
+# Δημιουργία named volume
+docker volume create my-data
+
+# Container που γράφει στο volume
+docker run -d --name vol-demo \
+  -v my-data:/data alpine \
+  sh -c "echo 'Hello from volume' > /data/message.txt && sleep 3600"
+
+# Ανάγνωση
+docker exec vol-demo cat /data/message.txt
+
+# Διαγραφή container
+docker stop vol-demo
+docker rm vol-demo
+
+# Νέο container — τα δεδομένα είναι ακόμα εκεί!
+docker run --rm -v my-data:/data alpine cat /data/message.txt
+```
+
+### 03.4 Καθαρισμός
+
+```bash
+docker volume rm my-data
+```
+
+## 04. Custom Image — Δημιουργία image με Dockerfile
+
+```bash
+cd ~/cloud-uth/code/01_docker/04_custom-image
+```
+
+Σε αυτό το παράδειγμα φτιάχνουμε το δικό μας Docker image χρησιμοποιώντας ένα `Dockerfile`.
+
+### 04.1 Αρχείο `app.sh`
+
+Ένα απλό shell script που θα τρέχει μέσα στο container:
+
+<!-- AUTO-CODE: code/01_docker/04_custom-image/app.sh -->
+``` bash
+#!/bin/sh
+echo "=== Custom Docker Image ==="
+echo "Hostname: $(hostname)"
+echo "Date: $(date)"
+echo ""
+echo "Container is running..."
+
+count=1
 while true; do
-    echo "Το Docker κοντέινερ τρέχει! $(date)"
+    echo "[${count}] Still running at $(date '+%H:%M:%S')"
+    count=$((count + 1))
     sleep 5
 done
 ```
+<!-- END AUTO-CODE -->
 
-Αποθηκεύστε το (`CTRL` + `X`, μετά `Y` και `Enter`).
+### 04.2 Αρχείο `Dockerfile`
 
-**Δώστε εκτελέσιμα δικαιώματα στο script**
+Το `Dockerfile` περιέχει τις οδηγίες για το χτίσιμο του image:
+
+<!-- AUTO-CODE: code/01_docker/04_custom-image/Dockerfile -->
+``` dockerfile
+FROM alpine:latest
+
+# Copy our script into the image
+COPY app.sh /app.sh
+
+# Make it executable
+RUN chmod +x /app.sh
+
+# Default command when the container starts
+CMD ["/app.sh"]
+```
+<!-- END AUTO-CODE -->
+
+- `FROM` : βασικό image πάνω στο οποίο χτίζουμε
+- `COPY` : αντιγράφει αρχεία από τον host στο image
+- `RUN` : εκτελεί εντολή κατά το build
+- `CMD` : εντολή που τρέχει όταν ξεκινάει το container
+
+### 04.3 Build
 
 ```bash
-chmod +x script.sh
+docker build -t my-app .
 ```
 
-### 4.3 Δημιουργία αρχείου `Dockerfile`
+- `-t my-app` : ονομάζει το image `my-app`
+- `.` : ο τρέχων φάκελος είναι το build context
 
-Τώρα θα δημιουργήσουμε το **Dockerfile**, το οποίο περιγράφει το κοντέινερ μας.
+### 04.4 Run
 
 ```bash
-nano Dockerfile
-```
-Επικολλήστε το εξής:
+docker run -d --name my-app-container my-app
 
-```dockerfile
-# Χρησιμοποιούμε την εικόνα Ubuntu
-FROM ubuntu:latest
-
-# Ορίζουμε τον maintainer
-LABEL maintainer="example@example.com"
-
-# Ενημέρωση του συστήματος και εγκατάσταση του bash
-RUN apt-get update && apt-get install -y bash
-
-# Αντιγραφή του script μέσα στο κοντέινερ
-COPY script.sh /script.sh
-
-# Ορισμός δικαιωμάτων εκτέλεσης στο script
-RUN chmod +x /script.sh
-
-# Εκτέλεση του script κατά την εκκίνηση του κοντέινερ
-CMD ["/script.sh"]
+# Παρακολούθηση logs (Ctrl+C για διακοπή)
+docker logs -f my-app-container
 ```
 
-Αποθηκεύστε το αρχείο με (`CTRL` + `X`, μετά `Y` και `Enter`).
-
-### 4.4 Δημιουργία του Docker image
-
-Τώρα θα φτιάξουμε την εικόνα Docker:
-
-```bash
-docker build -t my-custom-container .
-```
-
-### 4.5 Εκτέλεση του κοντέινερ
-
-Εκτελέστε το κοντέινερ στο παρασκήνιο:
-
-```bash
-docker run -d --name my-container my-custom-container
-```
-
-Για να δείτε τις καταγραφές του κοντέινερ σε πραγματικό χρόνο:
-
-```bash
-docker logs -f my-container
-```
-
-Θα δείτε μηνύματα όπως:
+Θα δείτε output κάθε 5 δευτερόλεπτα:
 
 ```
-Το Docker κοντέινερ τρέχει! Tue Mar 5 12:00:00 UTC 2025
-Το Docker κοντέινερ τρέχει! Tue Mar 5 12:00:05 UTC 2025
+=== Custom Docker Image ===
+Hostname: bc01dce2fb4d
+Date: Wed Apr  1 12:00:00 UTC 2026
+
+Container is running...
+[1] Still running at 12:00:00
+[2] Still running at 12:00:05
 ...
 ```
 
-### 4.6 Διαχείριση και καθαρισμός
-
-Σταμάτημα του κοντέινερ
+### 04.5 Εξέταση image
 
 ```bash
-docker stop my-container
+# Λίστα images
+docker images | grep my-app
+
+# Layers του image
+docker history my-app
 ```
 
-Διαγραφή του κοντέινερ
+### 04.6 Καθαρισμός
 
 ```bash
-docker rm my-container
+docker stop my-app-container
+docker rm my-app-container
+docker rmi my-app
 ```
 
-Διαγραφή της εικόνας:
+## 05. Environment Variables — Παραμετροποίηση containers
 
 ```bash
-docker rmi my-custom-container
+cd ~/cloud-uth/code/01_docker/05_environment
 ```
 
-## 5. Παράδειγμα 2: Εκτέλεση σύνθετου παραδείγματος με Nginx και πολλαπλούς web servers
+Τα environment variables μας επιτρέπουν να αλλάζουμε τη συμπεριφορά ενός container **χωρίς να αλλάζουμε τον κώδικα ή να χτίζουμε νέο image**.
 
-Θα δημιουργήσουμε ένα **Docker** **Compose** **setup** με:
+### 05.1 Αρχεία
 
-- **Nginx** ως **reverse** **proxy**
-- **Δύο web servers** με απλές HTML σελίδες
+**`app.sh`** — script που διαβάζει μεταβλητές περιβάλλοντος:
 
-### 5.1 Δημιουργία φακέλου εργασίας
+<!-- AUTO-CODE: code/01_docker/05_environment/app.sh -->
+``` bash
+#!/bin/sh
+echo "=== Application Configuration ==="
+echo "APP_NAME: ${APP_NAME:-not set}"
+echo "APP_ENV:  ${APP_ENV:-not set}"
+echo "APP_PORT: ${APP_PORT:-not set}"
+echo "================================="
+echo ""
+echo "Application is running..."
+
+while true; do
+    echo "[${APP_NAME:-app}] Running in ${APP_ENV:-unknown} mode on port ${APP_PORT:-?}"
+    sleep 5
+done
+```
+<!-- END AUTO-CODE -->
+
+**`Dockerfile`** — ορίζει default τιμές με `ENV`:
+
+<!-- AUTO-CODE: code/01_docker/05_environment/Dockerfile -->
+``` dockerfile
+FROM alpine:latest
+
+# Default values for environment variables
+ENV APP_NAME=my-app
+ENV APP_ENV=development
+ENV APP_PORT=8080
+
+COPY app.sh /app.sh
+RUN chmod +x /app.sh
+
+CMD ["/app.sh"]
+```
+<!-- END AUTO-CODE -->
+
+### 05.2 Build και run με defaults
 
 ```bash
-mkdir ~/docker-nginx-multi
-cd ~/docker-nginx-multi
+docker build -t env-app .
+docker run --rm --name env-demo env-app
 ```
 
-### 5.2 Δημιουργία `docker-compose.yml`
+Θα δείτε τις default τιμές: `APP_NAME=my-app`, `APP_ENV=development`, `APP_PORT=8080`.
 
-Εκτελέστε:
+Πατήστε `Ctrl+C` για διακοπή.
+
+### 05.3 Override μεταβλητών
 
 ```bash
-nano docker-compose.yml
+docker run --rm --name env-demo \
+  -e APP_NAME=cloud-app \
+  -e APP_ENV=production \
+  -e APP_PORT=3000 \
+  env-app
 ```
-Επικολλήστε το παρακάτω περιεχόμενο:
 
-```yaml
-version: "3.8"
+Οι τιμές αλλάζουν χωρίς rebuild!
 
+### 05.4 Εξέταση μεταβλητών ενός container
+
+```bash
+docker run -d --name env-inspect env-app
+docker exec env-inspect env
+docker stop env-inspect
+docker rm env-inspect
+```
+
+### 05.5 Καθαρισμός
+
+```bash
+docker rmi env-app
+```
+
+## 06. Docker Compose — Πολλαπλά containers μαζί
+
+```bash
+cd ~/cloud-uth/code/01_docker/06_compose-basics
+```
+
+Μέχρι τώρα τρέχαμε containers μεμονωμένα. Στην πράξη, μια εφαρμογή αποτελείται από πολλά services (web server, database, cache κλπ.). Το **Docker Compose** μας επιτρέπει να τα ορίσουμε μαζί σε ένα αρχείο `docker-compose.yml`.
+
+### 06.1 Αρχείο `docker-compose.yml`
+
+<!-- AUTO-CODE: code/01_docker/06_compose-basics/docker-compose.yml -->
+``` yaml
+services:
+  web:
+    image: nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: student
+      POSTGRES_PASSWORD: secret123
+      POSTGRES_DB: mydb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+```
+<!-- END AUTO-CODE -->
+
+Τι βλέπουμε:
+
+- **2 services**: `web` (Nginx) και `db` (PostgreSQL)
+- **ports**: ο web server είναι προσβάσιμος στο `localhost:8080`
+- **environment**: η βάση ρυθμίζεται μέσω μεταβλητών περιβάλλοντος
+- **volumes**: τα δεδομένα της βάσης αποθηκεύονται σε named volume
+- **depends_on**: ο web ξεκινάει μετά τη βάση
+
+### 06.2 Εκκίνηση
+
+```bash
+docker compose up -d
+```
+
+### 06.3 Επιβεβαίωση
+
+```bash
+# Containers που τρέχουν
+docker compose ps
+
+# Logs
+docker compose logs
+
+# Logs μόνο ενός service
+docker compose logs db
+```
+
+### 06.4 Σύνδεση στη βάση δεδομένων
+
+```bash
+docker compose exec db psql -U student -d mydb
+```
+
+Μέσα στο `psql` δοκιμάστε:
+
+```sql
+\l
+\q
+```
+
+### 06.5 Service discovery
+
+Τα containers στο ίδιο compose network μπορούν να επικοινωνούν χρησιμοποιώντας το **όνομα του service** ως hostname. Για παράδειγμα, ο web server μπορεί να βρει τη βάση στο hostname `db`.
+
+### 06.6 Τερματισμός
+
+```bash
+# Σταμάτημα containers
+docker compose down
+
+# Σταμάτημα και διαγραφή volumes (τα δεδομένα χάνονται)
+docker compose down -v
+```
+
+## 07. Reverse Proxy — Load balancing με Docker Compose
+
+```bash
+cd ~/cloud-uth/code/01_docker/07_compose-multi-web
+```
+
+Σύνθετο παράδειγμα: ένας **Nginx reverse proxy** μπροστά από **δύο web servers**, με load balancing.
+
+### 07.1 Αρχιτεκτονική
+
+```
+                    ┌──────────┐
+  Browser ──:8080──▶│  nginx   │
+                    │  proxy   │
+                    └────┬─────┘
+                         │
+                    ┌────┴─────┐
+                    │ mynetwork│
+                    ┌────┴─────┐
+              ┌─────┴──┐  ┌───┴────┐
+              │  web1   │  │  web2  │
+              └─────────┘  └────────┘
+```
+
+Ο proxy δέχεται αιτήματα στη θύρα 8080 και τα μοιράζει εναλλάξ στο web1 και web2 (round-robin).
+
+### 07.2 Αρχείο `docker-compose.yml`
+
+<!-- AUTO-CODE: code/01_docker/07_compose-multi-web/docker-compose.yml -->
+``` yaml
 services:
   web1:
     image: nginx
@@ -247,37 +576,30 @@ services:
 networks:
   mynetwork:
 ```
+<!-- END AUTO-CODE -->
 
-### 5.3 Δημιουργία φακέλων για HTML αρχεία
+### 07.3 HTML αρχεία
 
-```bash
-mkdir web1 web2
+**Web1:**
+
+<!-- AUTO-CODE: code/01_docker/07_compose-multi-web/web1/index.html -->
+``` html
+<h1>Welcome to Web1</h1>
 ```
+<!-- END AUTO-CODE -->
 
-### 5.4 Δημιουργία HTML σελίδων
+**Web2:**
 
-Για τον **Web1 server**:
-
-```bash
-echo "<h1>Welcome to Web1</h1>" > web1/index.html
+<!-- AUTO-CODE: code/01_docker/07_compose-multi-web/web2/index.html -->
+``` html
+<h1>Welcome to Web2</h1>
 ```
+<!-- END AUTO-CODE -->
 
-Για τον **Web2 server**:
+### 07.4 Αρχείο `nginx.conf`
 
-```bash
-echo "<h1>Welcome to Web2</h1>" > web2/index.html
-```
-
-### 5.5 Δημιουργία αρχείου `nginx.conf` (reverse proxy)
-
-Εκτελέστε:
-
-```bash
-nano nginx.conf
-```
-Επικολλήστε το παρακάτω:
-
-```
+<!-- AUTO-CODE: code/01_docker/07_compose-multi-web/nginx.conf -->
+``` nginx
 events {}
 
 http {
@@ -295,128 +617,40 @@ http {
     }
 }
 ```
+<!-- END AUTO-CODE -->
 
-**Εκκίνηση των κοντέινερ**
+- `upstream backend` : ορίζει ομάδα servers — χρησιμοποιεί τα ονόματα των services ως hostnames
+- `proxy_pass` : προωθεί τα requests στην ομάδα
+- Round-robin: κάθε request πάει εναλλάξ σε web1 και web2
+
+### 07.5 Εκκίνηση και δοκιμή
 
 ```bash
 docker compose up -d
 ```
 
-**Δοκιμή στο πρόγραμμα περιήγησης**
+Ανοίξτε http://localhost:8080 και κάντε refresh πολλές φορές — θα βλέπετε εναλλάξ "Welcome to Web1" και "Welcome to Web2".
 
-Ανοίξτε:
-
-http://localhost:8080
-
-Το Nginx θα εναλλάσσει αιτήματα μεταξύ **Web1** και **Web2**.
-
-## 6. Docker Volumes: Διαφορά ephemeral και persistent volumes
-
-Στο Docker, υπάρχουν **δύο τύποι αποθήκευσης δεδομένων**:
-
-- **Ephemeral (Προσωρινή) Αποθήκευση** – Τα δεδομένα χάνονται όταν το κοντέινερ διαγραφεί.
-- **Persistent (Μόνιμη) Αποθήκευση** – Τα δεδομένα διατηρούνται ανεξάρτητα από το κοντέινερ.
-
-Ας δούμε τη διαφορά με πρακτικά παραδείγματα.
-
-### 6.1 Ephemeral storage (τα δεδομένα χάνονται)
-
-Τα δεδομένα αποθηκεύονται μέσα στο σύστημα αρχείων του κοντέινερ και **δεν επιβιώνουν** όταν το κοντέινερ διαγραφεί.
-
-**Βήμα 1: Εκκίνηση Κοντέινερ και Δημιουργία Αρχείου**
+Εναλλακτικά, από το terminal:
 
 ```bash
-docker run -it --name temp-container ubuntu bash
+curl http://localhost:8080
+curl http://localhost:8080
+curl http://localhost:8080
 ```
 
-Μέσα στο κοντέινερ, δημιουργούμε ένα αρχείο:
+### 07.6 Εξέταση δικτύου
 
 ```bash
-echo "Προσωρινά δεδομένα" > /tmp/tempfile.txt
-cat /tmp/tempfile.txt
-```
-Θα δείτε:
+# Docker networks
+docker network ls
 
-```
-Προσωρινά δεδομένα
+# Ποια containers είναι στο δίκτυο
+docker network inspect 07_compose-multi-web_mynetwork
 ```
 
-**Βήμα 2: Διαγραφή Κοντέινερ και Έλεγχος Δεδομένων**
-
-Διαγράφουμε το κοντέινερ:
+### 07.7 Τερματισμός
 
 ```bash
-docker rm temp-container
-```
-
-Ξεκινάμε ένα **νέο κοντέινερ** και ελέγχουμε αν το αρχείο υπάρχει:
-
-```bash
-docker run -it ubuntu bash
-ls /tmp
-```
-
-Το αρχείο **δεν υπάρχει** γιατί το σύστημα αρχείων του κοντέινερ ήταν προσωρινό (ephemeral).
-
-### 6.2 Persistent storage (τα δεδομένα διατηρούνται)
-
-Τα δεδομένα αποθηκεύονται **εκτός του κοντέινερ**, σε ένα Docker **Volume**, και διατηρούνται ακόμα και μετά τη διαγραφή του κοντέινερ.
-
-**Βήμα 1: Δημιουργία Volume**
-
-```bash
-docker volume create mydata
-```
-
-Επιβεβαιώνουμε ότι το volume δημιουργήθηκε:
-
-```bash
-docker volume ls
-```
-
-**Βήμα 2: Εκκίνηση Κοντέινερ με Volume**
-
-```bash
-docker run -it --name persistent-container -v mydata:/data ubuntu bash
-```
-
-Μέσα στο κοντέινερ, δημιουργούμε ένα αρχείο:
-
-```bash
-echo "Μόνιμα δεδομένα" > /data/persistentfile.txt
-cat /data/persistentfile.txt
-```
-
-Θα δείτε:
-
-```
-Μόνιμα δεδομένα
-```
-
-Βγαίνουμε από το κοντέινερ:
-
-```bash
-exit
-```
-
-**Βήμα 3: Διαγραφή Κοντέινερ και Έλεγχος Δεδομένων**
-
-Διαγράφουμε το κοντέινερ:
-
-```bash
-docker rm persistent-container
-```
-
-Τώρα ξεκινάμε ένα νέο κοντέινερ και ελέγχουμε αν τα δεδομένα υπάρχουν:
-
-```bash
-docker run -it --rm -v mydata:/data ubuntu bash
-ls /data
-cat /data/persistentfile.txt
-```
-
-Θα δείτε ότι το αρχείο **υπάρχει ακόμα**:
-```
-persistentfile.txt
-Μόνιμα δεδομένα
+docker compose down
 ```

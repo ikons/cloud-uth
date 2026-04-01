@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-content
+data:
+  # Mount the PHP application code from a ConfigMap for teaching purposes.
+  index.php: |
+    <?php
+    $host     = getenv('DB_HOST');
+    $dbname   = getenv('DB_NAME');
+    $user     = getenv('DB_USER');
+    $password = getenv('DB_PASSWORD');
+
+    echo "<h1>Kubernetes Web Application</h1>";
+
+    try {
+        $pdo = new PDO("pgsql:host=$host;dbname=$dbname", $user, $password);
+        $stmt = $pdo->query("SELECT * FROM my_table");
+        echo "<h2>Data from PostgreSQL:</h2><ul>";
+        while ($row = $stmt->fetch()) {
+            echo "<li>" . htmlspecialchars($row['name']) . "</li>";
+        }
+        echo "</ul>";
+    } catch (PDOException $e) {
+        echo "<p>Connection error: " . htmlspecialchars($e->getMessage()) . "</p>";
+    }
+    ?>
