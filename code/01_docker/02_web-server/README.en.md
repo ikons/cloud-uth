@@ -2,6 +2,8 @@
 
 Run a web server (Nginx) in a container and view it in the browser.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## What you will learn
 
 - Port mapping (`-p`)

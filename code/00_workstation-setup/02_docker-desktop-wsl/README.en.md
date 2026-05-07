@@ -2,6 +2,8 @@
 
 This is the recommended path for most students. The Docker daemon runs through Docker Desktop on Windows, while the `docker` and `docker compose` commands are used from the Ubuntu terminal inside WSL.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Files
 
 ### `verify-docker-desktop.sh`

@@ -2,6 +2,8 @@
 
 Configuring containers through environment variables, without changing code.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## What you will learn
 
 - How to define environment variables in a Dockerfile (`ENV`)

@@ -2,6 +2,8 @@
 
 In this step we combine three concepts that have already been introduced separately: `ConfigMap`, `Deployment`, and `Service`. The result is a small stateless web application in which the page content remains externalized as configuration and the requests are served by multiple interchangeable replicas.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Compose three resources (`ConfigMap` + `Deployment` + `Service`) into a small functional application.

@@ -2,6 +2,8 @@
 
 This guide serves as the main entry point for the Kubernetes part of the course. The practical material is organized as a sequence of self-contained examples under `code/02_kubernetes`, so that students work directly with the exact same files that appear in the guides instead of copying isolated snippets.
 
+For consistent terminology across the course guides, consult [`glossary.md`](../../glossary.md).
+
 ## What you receive by email
 
 After filling in the access form, you receive:

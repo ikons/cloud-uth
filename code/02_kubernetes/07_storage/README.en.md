@@ -2,6 +2,8 @@
 
 This exercise connects Kubernetes storage with the Docker volume concepts discussed earlier. We compare two Pods: the first uses a `PersistentVolumeClaim` and therefore retains its data after recreation, while the second relies entirely on the temporary filesystem of the container.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Request persistent storage through a `PersistentVolumeClaim` and understand the relationship PVC ↔ PV ↔ StorageClass.

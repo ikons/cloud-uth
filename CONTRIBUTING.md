@@ -23,6 +23,7 @@ Examples:
 - When updating one language, update the corresponding file in the other language as soon as possible.
 - Student-facing prose in Greek should read as natural Greek, not as a word-for-word translation from English.
 - In Greek guides, prefer Greek wording for general instructional text and keep English only for established technical terms such as `Docker`, `Kubernetes`, commands, file names, and object names.
+- For repeated terminology, consult [`glossary.md`](glossary.md) and keep the Greek wording consistent across guides.
 - Keep the document title as a single unnumbered `#` heading.
 - Use manual decimal numbering in Markdown headings: `## 1. ...`, `### 1.1 ...`, `### 1.2 ...`.
 - For code snippets that must stay identical to repository files, prefer `AUTO-CODE` blocks instead of manually copying code.

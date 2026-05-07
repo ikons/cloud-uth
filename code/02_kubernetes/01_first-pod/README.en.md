@@ -2,6 +2,8 @@
 
 In this first exercise we run a simple Nginx Pod in order to become familiar with the basic structure of a Kubernetes manifest and with the minimum inspection commands provided by `kubectl`. At this stage the emphasis is not yet on networking or scaling, but on understanding the lifecycle of a single workload.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Apply your first manifest with `kubectl apply -f` and recognize the four core fields of a Kubernetes object: `apiVersion`, `kind`, `metadata`, `spec`.

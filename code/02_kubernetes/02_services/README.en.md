@@ -2,6 +2,8 @@
 
 Once a Pod has been created, the next question is how it can be reached through a stable network endpoint inside the cluster. In this exercise we introduce the `Service` object, which connects to Pods through labels and selectors and provides a stable name for network access.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Understand why a Pod is not enough as an access point (its IP is ephemeral) and recognize the solution: `Service`.

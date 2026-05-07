@@ -2,6 +2,8 @@
 
 `Secrets` serve a purpose similar to that of `ConfigMaps`, but they are meant for data that should not be treated as ordinary application configuration. Typical examples include passwords, tokens, and other access credentials that should remain separate from both source code and non-sensitive settings.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Distinguish `Secret` from `ConfigMap` and know **when** to pick each one.

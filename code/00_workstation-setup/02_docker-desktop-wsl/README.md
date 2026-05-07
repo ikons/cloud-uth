@@ -2,6 +2,8 @@
 
 Αυτό είναι το προτεινόμενο μονοπάτι για τους περισσότερους φοιτητές. Ο Docker daemon εκτελείται από το Docker Desktop στα Windows, ενώ οι εντολές `docker` και `docker compose` χρησιμοποιούνται από το Ubuntu terminal του WSL.
 
+Για συνεπή ελληνική ορολογία στους οδηγούς του μαθήματος, ανατρέξτε στο [glossary.md](../../../glossary.md).
+
 ## Αρχεία
 
 ### `verify-docker-desktop.sh`

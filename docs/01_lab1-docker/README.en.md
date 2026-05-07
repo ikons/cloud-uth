@@ -6,6 +6,8 @@ This guide will help you learn the basics of **Docker** through 7 examples of in
 
 This guide is intended to run from an Ubuntu/WSL terminal. It assumes that `00_workstation-setup` has already been completed, so `docker version`, `docker compose version`, and `docker run hello-world` work normally from WSL and the repository already exists locally at `~/cloud-uth`.
 
+For consistent terminology across the course guides, consult [`glossary.md`](../../glossary.md).
+
 All examples are located in the `code/01_docker/` directory of the repository:
 
 | # | Directory | Topic |

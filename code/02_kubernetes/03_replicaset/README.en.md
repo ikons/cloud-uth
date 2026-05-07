@@ -2,6 +2,8 @@
 
 The next concept we introduce is the `ReplicaSet`, that is, the Kubernetes mechanism that keeps a fixed number of identical Pods in existence. This example demonstrates both scaling and self-healing, because the system automatically replaces a Pod that is deleted.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Declare a desired number of replicas (`replicas`) and confirm that Kubernetes maintains it.

@@ -2,6 +2,8 @@
 
 At this stage we move from static scaling to the dynamic adjustment of replica count. The `HorizontalPodAutoscaler` monitors resource usage and increases or decreases the number of Pods in a `Deployment` according to the load handled by the application.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Configure a `HorizontalPodAutoscaler` that targets a `Deployment` based on CPU utilization.

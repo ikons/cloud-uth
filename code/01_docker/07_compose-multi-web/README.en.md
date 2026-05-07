@@ -2,6 +2,8 @@
 
 Advanced example: Nginx reverse proxy in front of multiple web servers.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## What you will learn
 
 - Reverse proxy pattern

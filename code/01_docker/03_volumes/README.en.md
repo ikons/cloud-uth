@@ -2,6 +2,8 @@
 
 Understanding the difference between ephemeral and persistent storage.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## What you will learn
 
 - Why data inside a container is lost when the container is removed

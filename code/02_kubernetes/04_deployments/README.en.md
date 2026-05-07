@@ -2,6 +2,8 @@
 
 In practice, most stateless workloads are not managed directly through `ReplicaSet`, but through `Deployment`. A `Deployment` adds controlled rollout behavior, revision history, and rollback support so that new application versions can be introduced safely.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Roll out a new image version with `kubectl set image` and observe a rolling update.

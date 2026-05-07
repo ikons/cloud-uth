@@ -2,6 +2,8 @@
 
 This path is for students who prefer to work entirely from Ubuntu without Docker Desktop on Windows. The lab supports it, but it requires slightly more careful environment management.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Files
 
 ### `wsl.conf.example`

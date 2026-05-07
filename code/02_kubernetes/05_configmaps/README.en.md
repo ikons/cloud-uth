@@ -2,6 +2,8 @@
 
 An application often requires settings or text files that should not be permanently embedded in the container image. For this purpose Kubernetes provides `ConfigMaps`, which allow a workload to be configured externally.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Externalize configuration so that the same image can run in different environments.

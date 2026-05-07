@@ -2,6 +2,8 @@
 
 At the end of the workstation setup, two conditions should be true: the repository should exist locally inside WSL, and the baseline Docker commands should work from the same shell environment. This step verifies exactly those two conditions.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Files
 
 ### `clone-cloud-uth.sh`

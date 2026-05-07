@@ -2,6 +2,8 @@
 
 This step prepares the baseline workstation environment on Windows and inside Ubuntu on WSL. When it is complete, you will have WSL2 available, Ubuntu installed, and the minimum tools required to continue with the Docker setup guide.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Files
 
 ### `enable-wsl.ps1`

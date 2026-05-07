@@ -2,6 +2,8 @@
 
 Παραμετροποιούμε containers μέσω environment variables, χωρίς να αλλάζουμε κώδικα.
 
+Για συνεπή ελληνική ορολογία στους οδηγούς του μαθήματος, ανατρέξτε στο [glossary.md](../../../glossary.md).
+
 ## Τι θα μάθουμε
 
 - Πώς ορίζουμε environment variables σε Dockerfile (`ENV`)

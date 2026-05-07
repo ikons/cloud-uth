@@ -4,6 +4,8 @@ The laboratory part of the course assumes that each student can work from an Ubu
 
 The canonical code and helper files of the preparatory workflow now live under `code/00_workstation-setup`. If you are reading this material before creating your first local clone, treat the snippets below as the authoritative execution steps and continue to step `04`, where the repository clone is also created.
 
+For consistent terminology across the course guides, consult [`glossary.md`](../../glossary.md).
+
 ## Preparation structure
 
 | # | Directory | Goal |

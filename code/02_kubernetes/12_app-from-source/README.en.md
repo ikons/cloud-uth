@@ -2,6 +2,8 @@
 
 This final step closes the chain we have been building so far: you write your own code, test it locally, build it into a Docker image, push it to a registry (Docker Hub), and deploy it as a regular `Deployment` that connects to the same PostgreSQL database we set up in `11_web-app`. The goal is not only Kubernetes practice but the full **commit → build → push → deploy → iterate** experience without any external CI infrastructure (no Jenkins, no GitHub Actions).
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Write a small Python (Flask) application that talks to the existing database from `11`.
@@ -12,7 +14,7 @@ This final step closes the chain we have been building so far: you write your ow
 
 ## How this fits in the sequence
 
-Up to step `11`, the application was either a ready image (nginx, postgres, php-apache) or PHP code injected through a `ConfigMap`. Here the web tier is **yours**: the code lives as files in your repo, is version-controlled, tested with `pytest`, and built into an image that lives in a registry. This is exactly the path you will follow in any professional environment.
+Up to step `11`, the application was either a ready image (nginx, postgres, php-apache) or PHP code injected through a `ConfigMap`. Here the web tier is **yours**: the code lives in files in your repository, is version-controlled, tested with `pytest`, and built into an image that lives in a registry. This is exactly the path you will follow in any professional environment.
 
 ## Prerequisites
 
@@ -425,7 +427,7 @@ Once the image is public on Docker Hub, the cluster can pull it without an `imag
 make deploy VERSION=0.1.0
 ```
 
-Behind the scenes the `Makefile` runs `sed` over `01-deployment.yaml` and replaces the placeholder `REPLACE_ME_USER/cloud-uth-pyapp:0.1.0` with your actual image. The file in the repo is untouched — that way you avoid accidental commits of your personal image tag.
+Behind the scenes the `Makefile` runs `sed` over `01-deployment.yaml` and replaces the placeholder `REPLACE_ME_USER/cloud-uth-pyapp:0.1.0` with your actual image. The file in the repository remains unchanged, so you do not accidentally commit your personal image tag.
 
 ### 5. Verification
 
@@ -469,7 +471,7 @@ Expected responses:
 }
 ```
 
-The `names` field contains data read from the PostgreSQL database set up in example `11`. The `served_by` field shows which Pod handled the request (try calling multiple times to see different Pod hostnames due to load balancing).
+The `names` field contains data read from the PostgreSQL database set up in example `11`. The `served_by` field shows which Pod handled the request (try calling multiple times to see the requests distributed across Pods).
 
 ## Iterate: change the code and ship a new version
 
@@ -513,8 +515,8 @@ This is where immutable tags pay off: `0.1.0` still exists in the registry, so t
 
 - Success: all Pods `Running` and `READY=1/1`, `/` returns JSON with `names`, `served_by` (the Pod hostname), and `version`.
 - If Pods stay at `0/1 Running` and flap with `Restart`: usually a failing readiness or liveness probe because the database is unreachable. Try `kubectl logs deployment/pyapp` and `kubectl get pods -l app=postgres`.
-- If you see `ImagePullBackOff`: usually you forgot `make push`, or the repo is not public, or there is a typo in `DOCKER_USER`.
-- If `make deploy` applies a manifest still containing the placeholder image (you see `REPLACE_ME_USER` in `kubectl describe`): you forgot to set `DOCKER_USER`, or the `sed` substitution did not match your spelling.
+- If you see `ImagePullBackOff`: usually you forgot `make push`, or the repository is not public, or there is a typo in `DOCKER_USER`.
+- If `make deploy` applies a manifest still containing the placeholder image (you see `REPLACE_ME_USER` in `kubectl describe`): you forgot to set `DOCKER_USER`, or the `sed` substitution did not match the exact text in the file.
 - **Never** use `:latest`. If you change the source and run `make build push` with the same tag, the cluster might not see the new image because the digest does not change under the `IfNotPresent` policy — and `kubectl rollout undo` then has no history to roll back to.
 
 ## Cleanup

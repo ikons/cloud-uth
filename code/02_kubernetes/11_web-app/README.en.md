@@ -2,12 +2,14 @@
 
 This example serves as a **synthesis** of the concepts you have seen separately in steps 01–10: a small two-tier web application with a PostgreSQL database, a PHP/Apache web tier, a `Secret` for the password, a `ConfigMap` for non-sensitive configuration, a `PersistentVolumeClaim` for durable database storage, and `Service` objects that provide stable network access.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Combine the six resource categories you have seen separately (Pod, Service, ConfigMap, Secret, PVC, Deployment-style manifest) into a complete two-tier application.
 - See how the web tier connects to the database through a **stable DNS name** (`postgres`) and env vars sourced from `ConfigMap` + `Secret`.
 - Recognize the correct **apply order** (config → storage → database → application) and why the `Makefile` waits for the database to become `Ready`.
-- Sense the difference between "**configuring** an existing image" and "**writing** your own code" — the bridge to the next step 12.
+- Recognize the difference between "**configuring** an existing image" and "**writing** your own code" — the bridge to the next step 12.
 
 ## How this fits in the sequence
 

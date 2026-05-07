@@ -2,6 +2,8 @@
 
 Building our first Docker image with a Dockerfile.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## What you will learn
 
 - What a Dockerfile is

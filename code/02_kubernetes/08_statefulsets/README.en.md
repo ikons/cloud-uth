@@ -2,6 +2,8 @@
 
 When each replica must keep a stable name, a stable network identity, and its own independent volume, a `Deployment` is no longer sufficient. In that case we use a `StatefulSet`, together with a headless `Service` and `volumeClaimTemplates`.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## Learning objectives
 
 - Recognize when a `Deployment` is not enough: when replicas need a unique, stable identity.

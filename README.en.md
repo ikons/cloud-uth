@@ -58,6 +58,7 @@ For any new teaching material, keep the same naming pattern:
 - English Markdown: `README.en.md`
 - Greek Word guide: `name.docx`
 - English Word guide: `name.en.docx`
+- Terminology reference: [`glossary.md`](glossary.md)
 
 ## 📝 Word Guides
 

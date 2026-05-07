@@ -2,6 +2,8 @@
 
 Σύνθετο παράδειγμα: Nginx reverse proxy μπροστά από πολλαπλούς web servers.
 
+Για συνεπή ελληνική ορολογία στους οδηγούς του μαθήματος, ανατρέξτε στο [glossary.md](../../../glossary.md).
+
 ## Τι θα μάθουμε
 
 - Reverse proxy pattern

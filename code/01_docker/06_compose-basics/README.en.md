@@ -2,6 +2,8 @@
 
 Running multiple containers together with Docker Compose.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## What you will learn
 
 - What Docker Compose is and why we need it

@@ -2,6 +2,8 @@
 
 First contact with Docker — running our first containers.
 
+For consistent terminology across the course guides, consult [glossary.md](../../../glossary.md).
+
 ## What you will learn
 
 - What a Docker image is and what a container is
