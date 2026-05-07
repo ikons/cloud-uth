@@ -2,6 +2,17 @@
 
 An application often requires settings or text files that should not be permanently embedded in the container image. For this purpose Kubernetes provides `ConfigMaps`, which allow a workload to be configured externally.
 
+## Learning objectives
+
+- Externalize configuration so that the same image can run in different environments.
+- Choose between the two consumption modes of a `ConfigMap`: **environment variables** (simple values) and **mounted files** (text files or multi-line content).
+- Recognize that a `ConfigMap` is meant only for **non-sensitive** data. Use `Secret` for credentials (next step).
+- Understand that updating a ConfigMap does **not** automatically restart the Pods that consume it as env vars.
+
+## How this fits in the sequence
+
+Until now all application behavior was baked into the image. This step lets you change settings without rebuilding. The next step does the same for sensitive data using the proper resource type (`Secret`).
+
 ## Example files
 
 The `ConfigMap` in this exercise stores two simple variables and one text file:
@@ -99,6 +110,15 @@ If we want to inspect the resource as stored by the Kubernetes API, we use:
 ```bash
 kubectl get configmap app-config -o yaml
 ```
+
+## Verification and common pitfalls
+
+- Success: `kubectl logs app-with-config` shows the env-var values (`APP_COLOR: blue`, `APP_MODE: production`) and the contents of `welcome.txt`.
+- If the Pod is stuck in `ContainerCreating` with `MountVolume.SetUp failed`, the ConfigMap is usually missing — apply `app-config.yaml` first, then the Pod.
+- Important behavior difference for updates:
+  - **Env vars** sourced from a ConfigMap are **not** refreshed in a running Pod. A restart (new rollout) is required.
+  - **Mounted files** are eventually consistent — they update a few seconds after the ConfigMap edit.
+- Common mistake: putting sensitive data (passwords, tokens) into a ConfigMap. That is a poor practice — use `Secret`.
 
 ## Cleanup
 

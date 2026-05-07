@@ -2,6 +2,17 @@
 
 The next concept we introduce is the `ReplicaSet`, that is, the Kubernetes mechanism that keeps a fixed number of identical Pods in existence. This example demonstrates both scaling and self-healing, because the system automatically replaces a Pod that is deleted.
 
+## Learning objectives
+
+- Declare a desired number of replicas (`replicas`) and confirm that Kubernetes maintains it.
+- Observe self-healing: when you delete a Pod, a new one is created automatically.
+- Recognize that the ReplicaSet `selector` must match the labels in its `template`.
+- Know that **in practice** we do not use a bare `ReplicaSet`, but a `Deployment` (which manages ReplicaSets for us) — this exercise is the foundation for the next step.
+
+## How this fits in the sequence
+
+Until now we had a single Pod with no survival guarantee. The `ReplicaSet` introduces the **controller** concept: an object that continuously watches the cluster and reconciles it back to the desired state. This control pattern is fundamental throughout Kubernetes — the `Deployment` of the next step is built on top of it.
+
 ## Example file
 
 The `ReplicaSet` manifest used in this exercise is the following:
@@ -63,6 +74,13 @@ kubectl get pods -l app=nginx-rs -w
 ```
 
 Kubernetes will create a replacement Pod so that the total number of replicas remains unchanged.
+
+## Verification and common pitfalls
+
+- Success: `kubectl get rs nginx-replicaset` reports `DESIRED=3 CURRENT=3 READY=3` and three Pods are `Running`.
+- After deleting one Pod, `kubectl get pods -w` should display a new Pod within a few seconds.
+- Common mistake: changing the image in the `template` does **not** trigger a rolling update on a bare `ReplicaSet` — existing Pods keep the old image. This is exactly why `Deployment` exists in the next step.
+- If the labels in the `template` do not match the `selector`, the API server rejects the manifest with a clear error.
 
 ## Cleanup
 

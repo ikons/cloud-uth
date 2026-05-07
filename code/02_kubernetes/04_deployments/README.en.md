@@ -2,6 +2,17 @@
 
 In practice, most stateless workloads are not managed directly through `ReplicaSet`, but through `Deployment`. A `Deployment` adds controlled rollout behavior, revision history, and rollback support so that new application versions can be introduced safely.
 
+## Learning objectives
+
+- Roll out a new image version with `kubectl set image` and observe a rolling update.
+- Inspect revision history with `kubectl rollout history` and restore a previous revision with `kubectl rollout undo`.
+- Tune `maxSurge`/`maxUnavailable` and understand how they affect availability during a rollout.
+- Pick `Deployment` (not bare ReplicaSet) as the default for any stateless workload.
+
+## How this fits in the sequence
+
+`Deployment` is the **practical** way to declare stateless applications. It creates and manages ReplicaSets for you and is the object you will use in every later example (`09_stateless-app`, `10_autoscaling`, `12_app-from-source`). The next two steps show how to externalize configuration (`ConfigMap`) and credentials (`Secret`) — the two most common pieces of data that "feed into" a Deployment.
+
 ## Example files
 
 The first manifest shows the basic form of a `Deployment`:
@@ -98,6 +109,14 @@ If necessary, the previous revision can be restored:
 kubectl rollout undo deployment/nginx-rolling
 kubectl rollout status deployment/nginx-rolling
 ```
+
+## Verification and common pitfalls
+
+- Success: `kubectl rollout status` ends with `successfully rolled out` and `kubectl get deployment nginx-rolling` shows `READY=3/3 UP-TO-DATE=3 AVAILABLE=3`.
+- `kubectl rollout history` should list at least two revisions after the `set image` command.
+- If the new version goes into `CrashLoopBackOff`, the Deployment keeps the old Pods serving traffic until you run `kubectl rollout undo`. Do **not** delete those Pods manually.
+- Common confusion: `kubectl edit deployment` triggers a fresh rollout — it is not a sideways change to existing Pods.
+- With `maxUnavailable: 0` you get zero-downtime upgrades, but you need spare capacity for the surge Pods during the rollout.
 
 ## Cleanup
 

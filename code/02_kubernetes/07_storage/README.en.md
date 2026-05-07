@@ -2,6 +2,17 @@
 
 This exercise connects Kubernetes storage with the Docker volume concepts discussed earlier. We compare two Pods: the first uses a `PersistentVolumeClaim` and therefore retains its data after recreation, while the second relies entirely on the temporary filesystem of the container.
 
+## Learning objectives
+
+- Request persistent storage through a `PersistentVolumeClaim` and understand the relationship PVC ↔ PV ↔ StorageClass.
+- Compare a Pod backed by an ephemeral filesystem with one backed by a PVC.
+- Recognize access modes (`ReadWriteOnce`, `ReadWriteMany`) and pick the right one for the use case.
+- Verify experimentally that data on a PVC survives Pod recreation.
+
+## How this fits in the sequence
+
+All previous examples were stateless: if the Pod was lost, its local data went with it — and that was acceptable. This step introduces the distinction that is a prerequisite for databases (next: `08_statefulsets`, and later `11_web-app` with PostgreSQL).
+
 ## Example files
 
 The `PersistentVolumeClaim` used by the persistent example is the following:
@@ -110,6 +121,13 @@ kubectl exec nginx-ephemeral -- sh -c "grep -q 'ephemeral-data' /usr/share/nginx
 ```
 
 We expect `nginx-persistent` to retain `persistent-data`, while `nginx-ephemeral` should return to its initial state.
+
+## Verification and common pitfalls
+
+- Success: after recreation, `nginx-persistent` still returns `persistent-data` while `nginx-ephemeral` reports `reset` — confirming that the PVC kept the data and the ephemeral filesystem did not.
+- The PVC must reach `STATUS=Bound` before `nginx-persistent` can start. Use `kubectl get pvc` to check.
+- If the PVC stays `Pending` for a long time: there is no StorageClass that can satisfy the claim. Rare in this lab but a common failure point on other clusters.
+- `ReadWriteOnce` means "one node at a time", **not** "one Pod at a time". Pods on the same node can share the volume.
 
 ## Cleanup
 

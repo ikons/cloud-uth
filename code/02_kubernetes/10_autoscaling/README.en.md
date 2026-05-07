@@ -2,6 +2,17 @@
 
 At this stage we move from static scaling to the dynamic adjustment of replica count. The `HorizontalPodAutoscaler` monitors resource usage and increases or decreases the number of Pods in a `Deployment` according to the load handled by the application.
 
+## Learning objectives
+
+- Configure a `HorizontalPodAutoscaler` that targets a `Deployment` based on CPU utilization.
+- Understand why HPA requires `requests.cpu` as a baseline.
+- Observe scale-up under load and (slower) scale-down afterwards.
+- Recognize that the HPA is the first **closed-loop controller** you encounter: it observes metrics and adjusts desired state without human intervention.
+
+## How this fits in the sequence
+
+So far you set `replicas` manually on the `Deployment`. Here the cluster decides automatically how many Pods are needed. If step 04 was about "controlled version change" via rolling updates, this step adds "controlled capacity change".
+
 ## Example files
 
 ### `deployment.yaml`
@@ -108,6 +119,14 @@ while true; do wget -q -O- http://php-apache; done
 ```
 
 Once the loop is stopped with `Ctrl+C`, the HPA will gradually reduce the number of replicas again.
+
+## Verification and common pitfalls
+
+- Success: `kubectl get hpa -w` shows `TARGETS` exceeding 50% and `REPLICAS` ramping up toward `maxReplicas`.
+- `<unknown>` in the first samples is normal — `metrics-server` needs a few seconds to collect the first measurement.
+- **Without `requests.cpu`** the HPA cannot compute `Utilization` — it is mandatory. Skipping `requests` leaves the HPA stuck on `<unknown>` permanently.
+- Scale-down is slow by design (default 5-minute stabilization) to prevent thrashing — do not mistake it for a failure.
+- The HPA owns `replicas`. If your `Deployment` keeps a fixed `replicas: N`, the HPA overrides it — do not edit replica counts in two places at once.
 
 ## Cleanup
 

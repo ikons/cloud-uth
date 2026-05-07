@@ -2,6 +2,17 @@
 
 When each replica must keep a stable name, a stable network identity, and its own independent volume, a `Deployment` is no longer sufficient. In that case we use a `StatefulSet`, together with a headless `Service` and `volumeClaimTemplates`.
 
+## Learning objectives
+
+- Recognize when a `Deployment` is not enough: when replicas need a unique, stable identity.
+- Connect a `StatefulSet` to a headless `Service` for DNS-based discovery (`web-0.web-headless`, `web-1.web-headless`, …).
+- Understand `volumeClaimTemplates`: one PVC per replica, automatically.
+- Verify with a small experiment that each replica keeps its name and storage after deletion.
+
+## How this fits in the sequence
+
+Up to step 04 the replicas were interchangeable — fine for stateless apps. Real databases, however, need per-instance identity and storage (for example, the leader of a replication topology). Step 11 will show that a single demo Postgres can run inside a plain Pod, but a clustered database is the typical use case for `StatefulSet`.
+
 ## Example files
 
 The headless `Service`, which provides stable DNS naming for the Pods in the `StatefulSet`, is defined as follows:
@@ -99,6 +110,13 @@ kubectl exec web-1 -- cat /usr/share/nginx/html/index.html
 ```
 
 `web-1` will be recreated with the same name and will continue to see its own dedicated volume.
+
+## Verification and common pitfalls
+
+- Success: `kubectl get pods -l app=web-sts` shows `web-0`, `web-1`, `web-2` in `Running`. `kubectl get pvc` lists `data-web-0`, `data-web-1`, `data-web-2`.
+- Pods are created **sequentially** (`web-0` → `web-1` → `web-2`), not in parallel. This is by design for state-aware systems and makes startup slower than a `Deployment`.
+- Deleting a Pod (e.g., `web-1`) recreates it with **the same name** and reattaches **the same PVC**. This guarantee is the main differentiator from a Deployment.
+- **Important**: deleting the StatefulSet does **not** delete the PVCs — that is why we delete them explicitly. This design protects the data in case of accidental deletion.
 
 ## Cleanup
 

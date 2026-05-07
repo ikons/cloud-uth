@@ -2,6 +2,17 @@
 
 `Secrets` serve a purpose similar to that of `ConfigMaps`, but they are meant for data that should not be treated as ordinary application configuration. Typical examples include passwords, tokens, and other access credentials that should remain separate from both source code and non-sensitive settings.
 
+## Learning objectives
+
+- Distinguish `Secret` from `ConfigMap` and know **when** to pick each one.
+- Use `stringData` for ergonomic authoring while knowing the API stores values **base64-encoded**.
+- Consume a Secret both as an env var and as a read-only file mount.
+- Recognize that base64 is **not encryption** — it is just encoding. Protection comes from RBAC and access policies on the Kubernetes API.
+
+## How this fits in the sequence
+
+Step 05 externalized general configuration. This step does the same for credentials, with the proper resource type. Secrets will be paired with Pods/Deployments in every later example that involves a database (`11_web-app`, `12_app-from-source`).
+
 ## Example files
 
 The `Secret` in this exercise defines two simple credentials:
@@ -94,6 +105,13 @@ kubectl get secret db-credentials -o yaml
 ```
 
 Note that the manifest uses `stringData`, whereas the Kubernetes API stores the resulting values in base64-encoded form.
+
+## Verification and common pitfalls
+
+- Success: the logs show `Username: postgres`, `Password: supersecret`, and the same value as `DB_USER=postgres` env var.
+- `kubectl get secret -o yaml` shows values in **base64-encoded** form. That is correct, not an error. To decode: `echo <encoded> | base64 -d`.
+- **Critical**: never commit a Secret YAML containing real values to a public git repo. In real workflows these are produced by tools such as `kubectl create secret`, sealed-secrets, or external secret managers.
+- Secret mounts use `readOnly: true` to prevent accidental writes from the application.
 
 ## Cleanup
 

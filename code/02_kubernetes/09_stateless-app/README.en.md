@@ -2,6 +2,16 @@
 
 In this step we combine three concepts that have already been introduced separately: `ConfigMap`, `Deployment`, and `Service`. The result is a small stateless web application in which the page content remains externalized as configuration and the requests are served by multiple interchangeable replicas.
 
+## Learning objectives
+
+- Compose three resources (`ConfigMap` + `Deployment` + `Service`) into a small functional application.
+- Define resource `requests` and `limits` and understand how the scheduler uses them.
+- Verify that multiple replicas can serve the same traffic without state.
+
+## How this fits in the sequence
+
+This is the first time we combine three resources in a single example — and it is the real-world template for stateless web applications on Kubernetes. It is the foundation on which we will add autoscaling (`10_autoscaling`) and a database (`11_web-app`).
+
 ## Example files
 
 The HTML content of the application is stored in a `ConfigMap`:
@@ -123,6 +133,13 @@ Then open `http://127.0.0.1:8080`. If local port `8080` is not available, use an
 ```bash
 kubectl port-forward svc/web-app 8081:80
 ```
+
+## Verification and common pitfalls
+
+- Success: `kubectl get pods -l app=web-app` shows 2 Pods in `Running`. The browser displays a page titled `Stateless App`.
+- If the `Deployment` is applied before the `ConfigMap`, the Pods may stay in `ContainerCreating` with `MountVolume.SetUp failed: configmap "web-html" not found`. Apply the ConfigMap first.
+- Reloading in the browser may be served by different replicas — that is the intended behavior for stateless apps. Do not rely on in-memory state between requests.
+- `requests` decide where the Pod is scheduled; `limits` decide whether it gets throttled or `OOMKilled` under load.
 
 ## Cleanup
 

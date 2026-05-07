@@ -103,8 +103,9 @@ echo "export KUBE_EDITOR=nano" >> ~/.bashrc
 | 09 | `code/02_kubernetes/09_stateless-app` | Stateless web app |
 | 10 | `code/02_kubernetes/10_autoscaling` | Horizontal autoscaling with HPA |
 | 11 | `code/02_kubernetes/11_web-app` | Composite web application example |
+| 12 | `code/02_kubernetes/12_app-from-source` | End-to-end Python app deployment (code → image → deploy) |
 
-Steps `01` to `09` form the core teaching sequence of the lab. Steps `10` and `11` build on the same concepts and present more advanced applications of them.
+Steps `01` to `09` form the core teaching sequence of the lab. Steps `10` and `11` build on the same concepts and present more advanced applications of them. Step `12` closes the sequence by showing how you write your own application, build and push it to a registry, and deploy it to the cluster.
 
 ## Execution rules
 
