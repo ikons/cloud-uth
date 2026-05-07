@@ -2,36 +2,42 @@
   {
     "id": "workstation-el",
     "source": "docs/00_Preparatory-lab/README.md",
+    "include_root": "code/00_workstation-setup",
     "output": "odigoi/00_workstation-setup.docx",
     "tocTitle": "Περιεχόμενα"
   },
   {
     "id": "workstation-en",
     "source": "docs/00_Preparatory-lab/README.en.md",
+    "include_root": "code/00_workstation-setup",
     "output": "odigoi/00_workstation-setup.en.docx",
     "tocTitle": "Table of Contents"
   },
   {
     "id": "docker-el",
     "source": "docs/01_lab1-docker/README.md",
+    "include_root": "code/01_docker",
     "output": "odigoi/01_docker.docx",
     "tocTitle": "Περιεχόμενα"
   },
   {
     "id": "docker-en",
     "source": "docs/01_lab1-docker/README.en.md",
+    "include_root": "code/01_docker",
     "output": "odigoi/01_docker.en.docx",
     "tocTitle": "Table of Contents"
   },
   {
     "id": "kubernetes-el",
     "source": "docs/01_lab1-k8s/README.md",
+    "include_root": "code/02_kubernetes",
     "output": "odigoi/02_kubernetes.docx",
     "tocTitle": "Περιεχόμενα"
   },
   {
     "id": "kubernetes-en",
     "source": "docs/01_lab1-k8s/README.en.md",
+    "include_root": "code/02_kubernetes",
     "output": "odigoi/02_kubernetes.en.docx",
     "tocTitle": "Table of Contents"
   }

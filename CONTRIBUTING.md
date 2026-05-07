@@ -39,7 +39,7 @@ Examples:
 - Use a local repo virtual environment at `.venv/` for the docs build; it is not committed and should be recreated locally when needed.
 - Regenerate Word guides from Markdown with `python scripts/export_docx.py`, `scripts/export-docx.ps1`, or `make -C docs docx`.
 - Before exporting Word guides or committing docs updates, run `python scripts/sync_markdown_code.py` or `make -C docs sync`.
-- The DOCX source/output mapping lives in `docs/docx-manifest.json`.
+- The DOCX source/output mapping lives in `docs/docx-manifest.json`; each entry pairs the top-level guide README with an include root that is scanned recursively for matching `README.md` or `README.en.md` files.
 - The shared Word styling template is `templates/reference.docx`.
 - The template itself is generated from code with `python scripts/create_reference_template.py`.
 - The generated `.docx` files use a real Word table-of-contents field emitted by Pandoc.

@@ -46,5 +46,5 @@ cd cloud-uth
 
 ## 📝 Οδηγοί Word
 
-Οι οδηγοί Word στον φάκελο `odigoi/` παράγονται από τα Markdown αρχεία του `docs/` μέσω Pandoc.
+Οι οδηγοί Word στον φάκελο `odigoi/` παράγονται από τα Markdown αρχεία του `docs/` και από τα αντίστοιχα `README.md` / `README.en.md` των υποφακέλων στο `code/` μέσω Pandoc.
 Σε Windows, το `scripts/export-docx.ps1` και το `make -C docs docx` προσπαθούν πρώτα να χρησιμοποιήσουν το Microsoft Word για αυτόματη ανανέωση του πίνακα περιεχομένων και, αν δεν είναι διαθέσιμο, κάνουν fallback σε LibreOffice.

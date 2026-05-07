@@ -62,5 +62,5 @@ For any new teaching material, keep the same naming pattern:
 
 ## 📝 Word Guides
 
-The Word guides under `odigoi/` are generated from the Markdown files in `docs/` with Pandoc.
+The Word guides under `odigoi/` are generated from the Markdown files in `docs/` and from the matching `README.md` / `README.en.md` files under the `code/` subfolders with Pandoc.
 On Windows, `scripts/export-docx.ps1` and `make -C docs docx` first try Microsoft Word to refresh the table of contents after export and fall back to LibreOffice if Word automation is unavailable.
