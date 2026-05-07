@@ -232,7 +232,6 @@ def export_entry(repo_root: Path, reference_doc: Path, pandoc_executable: str, e
         "--to=docx",
         "--toc",
         "--toc-depth=3",
-        "--shift-heading-level-by=-1",
         "--metadata",
         f"toc-title={entry['tocTitle']}",
         f"--reference-doc={reference_doc}",
